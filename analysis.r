@@ -14,6 +14,8 @@ source("R/data_prep.R")
 dat_fert <- dat[dat$life.stage == "fertilisation",]
 dat_fert$rep <- 1:nrow(dat_fert)
 
+par(mfrow=c(5, 2))
+
 mod_fert <- glm(cbind(success, failure) ~ sediment_mg_per_l, family=binomial, data=dat_fert)
 summary(mod_fert)
 plot(mean_value_prop ~ sediment_mg_per_l, data=dat_fert)
