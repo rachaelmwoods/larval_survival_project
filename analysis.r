@@ -11,63 +11,176 @@ source("R/data_prep.R")
 
 ## FERTILISATION - MODEL - GLM - FULL model - sediment, ammonium, phosphorous, copper, tributyltin, zinc, cadmium, salinity, salinity sq, nitrate
 
-data <- dat[dat$life.stage == "fertilisation",]
-data$rep <- 1:nrow(data)
+dat_fert <- dat[dat$life.stage == "fertilisation",]
+dat_fert$rep <- 1:nrow(dat_fert)
 
-# Seperate factors to be used
-#data2 <- with(dat, data.frame(life.stage, sediment_mg_per_l, ammonium_microM, phosphorous_microM, copper_ug_per_l, tributyltin_ug_per_l, zinc_ug_per_l, cadmium_ug_per_l, salinity_psu, nitrate_microM, acidification_pH, tempertaure_degrees_celcius, tempertaure_degrees_celcius_sq))
-# Subset main dataset
-#data <- dat[apply(!is.na(data2[, -1]), 1, sum) > 0 & data2$life.stage == "fertilisation",]
-# Add random observation variable for overdispersion
+mod_fert <- glm(cbind(success, failure) ~ sediment_mg_per_l, family=binomial, data=dat_fert)
+summary(mod_fert)
+plot(mean_value_prop ~ sediment_mg_per_l, data=dat_fert)
+ss <- sort(dat_fert$sediment_mg_per_l)
+lines(ss, predict(mod_fert, list(sediment_mg_per_l = ss), type="response"))
 
-# Simple model without random effects to get feel for patterns
+mod_fert <- glm(cbind(success, failure) ~ ammonium_microM, family=binomial, data=dat_fert)
+summary(mod_fert)
+plot(mean_value_prop ~ ammonium_microM, data=dat_fert)
+ss <- sort(dat_fert$ammonium_microM)
+lines(ss, predict(mod_fert, list(ammonium_microM = ss), type="response"))
 
+mod_fert <- glm(cbind(success, failure) ~ phosphorous_microM, family=binomial, data=dat_fert)
+summary(mod_fert)
+plot(mean_value_prop ~ phosphorous_microM, data=dat_fert)
+ss <- sort(dat_fert$phosphorous_microM)
+lines(ss, predict(mod_fert, list(phosphorous_microM = ss), type="response"))
 
+mod_fert <- glm(cbind(success, failure) ~ copper_ug_per_l, family=binomial, data=dat_fert)
+summary(mod_fert)
+plot(mean_value_prop ~ copper_ug_per_l, data=dat_fert)
+ss <- sort(dat_fert$copper_ug_per_l)
+lines(ss, predict(mod_fert, list(copper_ug_per_l = ss), type="response"))
 
-mod_fert_full <- glm(cbind(success, failure) ~ sediment_mg_per_l + ammonium_microM + phosphorous_microM + copper_ug_per_l + tributyltin_ug_per_l + zinc_ug_per_l + cadmium_ug_per_l + salinity_psu + salinity_psu_sq + nitrate_microM + acidification_pH + acidification_pH_sq + tempertaure_degrees_celcius + tempertaure_degrees_celcius_sq, family=binomial, data)
+# REMOVE tributyltin_ug_per_l. Not enough data!!
 
+# REMOVE ZINC!!
+mod_fert <- glm(cbind(success, failure) ~ zinc_ug_per_l, family=binomial, data=dat_fert)
+summary(mod_fert)
+plot(mean_value_prop ~ zinc_ug_per_l, data=dat_fert)
+ss <- sort(dat_fert$zinc_ug_per_l)
+lines(ss, predict(mod_fert, list(zinc_ug_per_l = ss), type="response"))
 
-# This doesn't work because overparametrised... 
-mod_fert_full <- glmer(cbind(success, failure) ~ sediment_mg_per_l + ammonium_microM + phosphorous_microM + copper_ug_per_l + tributyltin_ug_per_l + zinc_ug_per_l + cadmium_ug_per_l + salinity_psu + salinity_psu_sq + nitrate_microM + acidification_pH + acidification_pH_sq + tempertaure_degrees_celcius + tempertaure_degrees_celcius_sq + (1 | experiment) + (1 | rep), family=binomial, data)
+# VERY WEAK RELATOPNSHIP
+mod_fert <- glm(cbind(success, failure) ~ cadmium_ug_per_l, family=binomial, data=dat_fert)
+summary(mod_fert)
+plot(mean_value_prop ~ cadmium_ug_per_l, data=dat_fert)
+ss <- sort(dat_fert$cadmium_ug_per_l)
+lines(ss, predict(mod_fert, list(cadmium_ug_per_l = ss), type="response"))
 
-# TRY with fewer variables -- remove ones we know not having effect
-data2 <- with(dat2, data.frame(life.stage, sediment_mg_per_l, phosphorous_microM, copper_ug_per_l, zinc_ug_per_l, salinity_psu, nitrate_microM, tempertaure_degrees_celcius + tempertaure_degrees_celcius_sq))
-data = dat[apply(!is.na(data2[, -1]), 1, sum) > 0 & data2$life.stage == "fertilisation",]
-data$rep <- 1:dim(data)[1]
+# REMOVE nitrate_microM!!
+mod_fert <- glm(cbind(success, failure) ~ nitrate_microM, family=binomial, data=dat_fert)
+summary(mod_fert)
+plot(mean_value_prop ~ nitrate_microM, data=dat_fert)
+ss <- sort(dat_fert$nitrate_microM)
+lines(ss, predict(mod_fert, list(nitrate_microM = ss), type="response"))
 
-# Works now, complains about rescaling some variables, but okay
-mod_fert_full <- glmer(cbind(success, failure) ~ sediment_mg_per_l + phosphorous_microM + copper_ug_per_l + zinc_ug_per_l + salinity_psu + salinity_psu_sq + nitrate_microM + tempertaure_degrees_celcius + tempertaure_degrees_celcius_sq +(1 | experiment) + (1 | rep), family=binomial, data)
+mod_fert <- glm(cbind(success, failure) ~ salinity_psu + salinity_psu_sq, family=binomial, data=dat_fert)
+summary(mod_fert)
+plot(mean_value_prop ~ salinity_psu, data=dat_fert)
+ss <- sort(dat_fert$salinity_psu)
+lines(ss, predict(mod_fert, list(salinity_psu = ss, salinity_psu_sq = ss^2), type="response"))
+
+# VERY WEAK RESPONSE
+mod_fert <- glm(cbind(success, failure) ~ acidification_pH + acidification_pH_sq, family=binomial, data=dat_fert)
+summary(mod_fert)
+plot(mean_value_prop ~ acidification_pH, data=dat_fert)
+ss <- sort(dat_fert$acidification_pH)
+lines(ss, predict(mod_fert, list(acidification_pH = ss, acidification_pH_sq = ss^2), type="response"))
+drop1(mod_fert, test="Chisq")
+
+# NOT ENOUGH DATA
+mod_fert <- glm(cbind(success, failure) ~ tempertaure_degrees_kelvin, family=binomial, data=dat_fert)
+summary(mod_fert)
+plot(mean_value_prop ~ tempertaure_degrees_kelvin, data=dat_fert)
+
+# FULL MODEL
+
+dat_fert2 <- dat_fert[c("success", "failure", "sediment_mg_per_l", "ammonium_microM", "phosphorous_microM", "copper_ug_per_l", "salinity_psu", "salinity_psu_sq", "experiment", "mean_value_prop")]
+dat_fert2 <- dat_fert2[!(is.na(dat_fert2$sediment_mg_per_l) & is.na(dat_fert2$ammonium_microM) & is.na(dat_fert2$phosphorous_microM) & is.na(dat_fert2$copper_ug_per_l) & is.na(dat_fert2$salinity_psu)),]
+
+dat_fert2$sediment_mg_per_l[is.na(dat_fert2$sediment_mg_per_l)] <- log10(1)
+dat_fert2$ammonium_microM[is.na(dat_fert2$ammonium_microM)] <- log10(0.01391)
+dat_fert2$phosphorous_microM[is.na(dat_fert2$phosphorous_microM)] <- log10(0.446)
+dat_fert2$copper_ug_per_l[is.na(dat_fert2$copper_ug_per_l)] <- log10(0.9)
+
+dat_fert2$salinity_psu[is.na(dat_fert2$salinity_psu)] <- 34
+#square salinity because it has a quadratic response - because it decreases on both sides from 35psu
+dat_fert2$salinity_psu_sq <- dat_fert2$salinity_psu^2
+
+dat_fert2$rep <- 1:nrow(dat_fert2)
+
+##
+
+mod_fert_full <- glm(cbind(success, failure) ~ sediment_mg_per_l + ammonium_microM + phosphorous_microM + copper_ug_per_l + salinity_psu + salinity_psu_sq, family=binomial, data=dat_fert2)
+summary(mod_fert_full)
+drop1(mod_fert_full, test="Chisq")
+
+mod_fert_full <- glmer(cbind(success, failure) ~ sediment_mg_per_l + ammonium_microM + phosphorous_microM + copper_ug_per_l + salinity_psu + salinity_psu_sq + (1 | experiment) + (1 | rep), family=binomial, data=dat_fert2)
+
+summary(mod_fert_full)
+
 # Below should be less than one (or else overdispersion)
 sum(residuals(mod_fert_full, type="pearson")^2)/df.residual(mod_fert_full)
 
 drop1(mod_fert_full, test="Chisq")
 
-# Drop some based on above for final model
-data2 <- with(dat2, data.frame(life.stage, sediment_mg_per_l, phosphorous_microM, copper_ug_per_l, salinity_psu))
-data = dat[apply(!is.na(data2[, -1]), 1, sum) > 0 & data2$life.stage == "fertilisation",]
-data$rep <- 1:dim(data)[1]
-
-mod_fert_final <- glmer(cbind(success, failure) ~ sediment_mg_per_l + phosphorous_microM + copper_ug_per_l + salinity_psu + salinity_psu_sq + (1 | experiment) + (1 | rep), family=binomial, data, control=glmerControl(optimizer="bobyqa"))
-# Note "rep" is needed to remove overdispersion; "experiment" not necessarily needed, but improves AIC and makes sense to keep.
-sum(residuals(mod_fert_final, type="pearson")^2)/df.residual(mod_fert_final)
-
-drop1(mod_fert_final, test="Chisq")
-summary(mod_fert_final)
-
-
 # PLOTS FOR FERTILISATION
 # COPPER
 par(mfrow=c(2,2))
 
-ss <- seq(1, max(data$copper_ug_per_l), 1)
-newdat <- expand.grid(sediment_mg_per_l=0, phosphorous_microM=0, copper_ug_per_l = ss, salinity_psu = 35, salinity_psu_sq = 35^2, success=0, failure=0)
-mm <- model.matrix(terms(mod_fert_final),newdat)
+ss <- seq(min(dat_fert2$copper_ug_per_l), max(dat_fert2$copper_ug_per_l), 0.05)
+newdat <- expand.grid(sediment_mg_per_l=log10(1), ammonium_microM=log10(0.01391), phosphorous_microM=log10(0.446), copper_ug_per_l = ss, salinity_psu = 34, salinity_psu_sq = 34^2, success=0, failure=0)
+mm <- model.matrix(terms(mod_fert_full), newdat)
 
-newdat$success <- mm %*% fixef(mod_fert_final)
-pvar1 <- diag(mm %*% tcrossprod(vcov(mod_fert_final),mm))
-tvar1 <- pvar1 + VarCorr(mod_fert_final)$experiment[1] + VarCorr(mod_fert_final)$rep[1]  ## must be adapted for more complex models
+newdat$success <- mm %*% fixef(mod_fert_full)
+pvar1 <- diag(mm %*% tcrossprod(vcov(mod_fert_full),mm))
+tvar1 <- pvar1 + VarCorr(mod_fert_full)$experiment[1] + VarCorr(mod_fert_full)$rep[1]  ## must be adapted for more complex models
 
-plot(data$copper_ug_per_l, data$mean_value_prop, xlab="Copper (?g/L)", ylab="Proportion of Larvae Fertilised", ylim=c(0, 1))
+plot(dat_fert2$copper_ug_per_l, dat_fert2$mean_value_prop, xlab="Copper (?g/L)", ylab="Proportion of Larvae Fertilised", ylim=c(0, 1))
+lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
+# "CI based on fixed-effects uncertainty ONLY"
+lines(ss, inv.logit(newdat$success-2*sqrt(pvar1)), lty=2)
+lines(ss, inv.logit(newdat$success+2*sqrt(pvar1)), lty=2)
+# "CI based on fixed-effects uncertainty + random-effects variance"
+# lines(ss, inv.logit(newdat$success-2*sqrt(tvar1)), col="red", lty=2)
+# lines(ss, inv.logit(newdat$success+2*sqrt(tvar1)), col="red", lty=2)
+
+# SEDIMENT
+
+ss <- seq(min(dat_fert2$sediment_mg_per_l), max(dat_fert2$sediment_mg_per_l), 0.01)
+newdat <- expand.grid(sediment_mg_per_l=ss, ammonium_microM=log10(0.01391), phosphorous_microM=log10(0.446), copper_ug_per_l = log10(0.9), salinity_psu = 34, salinity_psu_sq = 34^2, success=0, failure=0)
+mm <- model.matrix(terms(mod_fert_full),newdat)
+
+newdat$success <- mm %*% fixef(mod_fert_full)
+pvar1 <- diag(mm %*% tcrossprod(vcov(mod_fert_full),mm))
+tvar1 <- pvar1 + VarCorr(mod_fert_full)$experiment[1] + VarCorr(mod_fert_full)$rep[1]  ## must be adapted for more complex models
+
+plot(dat_fert2$sediment_mg_per_l, dat_fert2$mean_value_prop, xlab="Copper (?g/L)", ylab="Proportion of Larvae Fertilised", ylim=c(0, 1))
+lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
+# "CI based on fixed-effects uncertainty ONLY"
+lines(ss, inv.logit(newdat$success-2*sqrt(pvar1)), lty=2)
+lines(ss, inv.logit(newdat$success+2*sqrt(pvar1)), lty=2)
+# "CI based on fixed-effects uncertainty + random-effects variance"
+# lines(ss, inv.logit(newdat$success-2*sqrt(tvar1)), col="red", lty=2)
+# lines(ss, inv.logit(newdat$success+2*sqrt(tvar1)), col="red", lty=2)
+
+# AMMONIUM
+
+ss <- seq(min(dat_fert2$ammonium_microM), max(dat_fert2$ammonium_microM), 0.05)
+newdat <- expand.grid(sediment_mg_per_l=log10(1), ammonium_microM=ss, phosphorous_microM=log10(0.446), copper_ug_per_l = log10(0.9), salinity_psu = 34, salinity_psu_sq = 34^2, success=0, failure=0)
+mm <- model.matrix(terms(mod_fert_full),newdat)
+
+newdat$success <- mm %*% fixef(mod_fert_full)
+pvar1 <- diag(mm %*% tcrossprod(vcov(mod_fert_full),mm))
+tvar1 <- pvar1 + VarCorr(mod_fert_full)$experiment[1] + VarCorr(mod_fert_full)$rep[1]  ## must be adapted for more complex models
+
+plot(dat_fert2$ammonium_microM, dat_fert2$mean_value_prop, xlab="Copper (?g/L)", ylab="Proportion of Larvae Fertilised", ylim=c(0, 1))
+lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
+# "CI based on fixed-effects uncertainty ONLY"
+lines(ss, inv.logit(newdat$success-2*sqrt(pvar1)), lty=2)
+lines(ss, inv.logit(newdat$success+2*sqrt(pvar1)), lty=2)
+# "CI based on fixed-effects uncertainty + random-effects variance"
+# lines(ss, inv.logit(newdat$success-2*sqrt(tvar1)), col="red", lty=2)
+# lines(ss, inv.logit(newdat$success+2*sqrt(tvar1)), col="red", lty=2)
+
+# PHOSPHOROUS
+
+ss <- seq(min(dat_fert2$phosphorous_microM), max(dat_fert2$phosphorous_microM), 0.05)
+newdat <- expand.grid(sediment_mg_per_l=log10(1), ammonium_microM=log10(0.01391), phosphorous_microM=ss, copper_ug_per_l = log10(0.9), salinity_psu = 34, salinity_psu_sq = 34^2, success=0, failure=0)
+mm <- model.matrix(terms(mod_fert_full),newdat)
+
+newdat$success <- mm %*% fixef(mod_fert_full)
+pvar1 <- diag(mm %*% tcrossprod(vcov(mod_fert_full),mm))
+tvar1 <- pvar1 + VarCorr(mod_fert_full)$experiment[1] + VarCorr(mod_fert_full)$rep[1]  ## must be adapted for more complex models
+
+plot(dat_fert2$phosphorous_microM, dat_fert2$mean_value_prop, xlab="Copper (?g/L)", ylab="Proportion of Larvae Fertilised", ylim=c(0, 1))
 lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
 # "CI based on fixed-effects uncertainty ONLY"
 lines(ss, inv.logit(newdat$success-2*sqrt(pvar1)), lty=2)
@@ -77,6 +190,30 @@ lines(ss, inv.logit(newdat$success+2*sqrt(pvar1)), lty=2)
 # lines(ss, inv.logit(newdat$success+2*sqrt(tvar1)), col="red", lty=2)
 
 # SALINITY
+ss <- seq(min(dat_fert2$salinity_psu), max(dat_fert2$salinity_psu), 0.1)
+newdat <- expand.grid(sediment_mg_per_l=log10(1), ammonium_microM=log10(0.01391), phosphorous_microM=log10(0.446), copper_ug_per_l = log10(0.9), salinity_psu = ss, salinity_psu_sq = 0, success=0, failure=0)
+newdat$salinity_psu_sq = newdat$salinity_psu^2
+mm <- model.matrix(terms(mod_fert_full),newdat)
+
+newdat$success <- mm %*% fixef(mod_fert_full)
+pvar1 <- diag(mm %*% tcrossprod(vcov(mod_fert_full),mm))
+tvar1 <- pvar1 + VarCorr(mod_fert_full)$experiment[1] + VarCorr(mod_fert_full)$rep[1]  ## must be adapted for more complex models
+
+plot(dat_fert2$salinity_psu, dat_fert2$mean_value_prop, xlab="Copper (?g/L)", ylab="Proportion of Larvae Fertilised", ylim=c(0, 1))
+lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
+# "CI based on fixed-effects uncertainty ONLY"
+lines(ss, inv.logit(newdat$success-2*sqrt(pvar1)), lty=2)
+lines(ss, inv.logit(newdat$success+2*sqrt(pvar1)), lty=2)
+# "CI based on fixed-effects uncertainty + random-effects variance"
+# lines(ss, inv.logit(newdat$success-2*sqrt(tvar1)), col="red", lty=2)
+# lines(ss, inv.logit(newdat$success+2*sqrt(tvar1)), col="red", lty=2)
+
+
+
+## TO HERE
+
+
+
 ss <- seq(1, max(data$salinity_psu), 0.1)
 newdat <- expand.grid(sediment_mg_per_l=0, phosphorous_microM=0, copper_ug_per_l = 0, salinity_psu = ss, salinity_psu_sq = 35^2, success=0, failure=0)
 newdat$salinity_psu_sq = newdat$salinity_psu^2
