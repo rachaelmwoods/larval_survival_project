@@ -316,7 +316,7 @@ Temperature affects the early life history stages of corals more than near futur
 Temperature affects the early life history stages of corals more than near future ocean acidification,"Chua, Leggat, Moya and Baird",Acropora millepora,55,,fertilisation,0%,86.816,240,1.987,,,,,,,,,,,,,29,,,8.12,,,ACIDIFICATION,fertilisation,pH/temp,86.816,,208.3584,31.6416
 Temperature affects the early life history stages of corals more than near future ocean acidification,"Chua, Leggat, Moya and Baird",Acropora millepora,55,,fertilisation,0%,98.013,240,0.662,,,,,,,,,,,,,27,,,7.98,,,ACIDIFICATION,fertilisation,pH/temp,98.013,,235.2312,4.7688
 Temperature affects the early life history stages of corals more than near future ocean acidification,"Chua, Leggat, Moya and Baird",Acropora millepora,55,,fertilisation,0%,84.766,240,4.636,,,,,,,,,,,,,29,,,8.01,,,ACIDIFICATION,fertilisation,pH/temp,84.766,,203.4384,36.5616
-Temperature affects the early life history stages of corals more than near future ocean acidification,"Chua, Leggat, Moya and Baird",Acropora millepora,55,,fertilisation,0%,99.338,240,0,,,,,,,,,,,,,27,,,8.17,,,ACIDIFICATION,fertilisation,pH/temp,99.338,,238.4112,1.5888
+Temperature affects the early life history stages of corals more than near future ocean acidification,"Chua, Leggat, Moya and Baird",Acropora millepora,55,Miscelanous Items - airstone and tubing,fertilisation,0%,99.338,240,0,,,,,,,,,,,,,27,,,8.17,,,ACIDIFICATION,fertilisation,pH/temp,99.338,,238.4112,1.5888
 Temperature affects the early life history stages of corals more than near future ocean acidification,"Chua, Leggat, Moya and Baird",Acropora millepora,55,,fertilisation,0%,100,240,0,,,,,,,,,,,,,29,,,8.18,,,ACIDIFICATION,fertilisation,pH/temp,100,,240,0
 Temperature affects the early life history stages of corals more than near future ocean acidification,"Chua, Leggat, Moya and Baird",Acropora millepora,55,,fertilisation,0%,94.7,240,1.987,,,,,,,,,,,,,27,,,8.06,,,ACIDIFICATION,fertilisation,pH/temp,94.7,,227.28,12.72
 Temperature affects the early life history stages of corals more than near future ocean acidification,"Chua, Leggat, Moya and Baird",Acropora millepora,55,,fertilisation,0%,81.458,240,6.622,,,,,,,,,,,,,29,,,8.06,,,ACIDIFICATION,fertilisation,pH/temp,81.458,,195.4992,44.5008
@@ -325,4 +325,15 @@ Temperature affects the early life history stages of corals more than near futur
 "Pelagic conditons affect larval behaviour, survival and settlement patterns in the Carribean coral Monstrea faveolata","Vermeij, Foggarty, Miller",Monstrea faveolata,56,,survivorship,0%,29.499,200,20.702,,,,,,,,,,,32,,,,,,,,SALINITY,survivorship,pH,29.499,,58.998,141.002
 "Pelagic conditons affect larval behaviour, survival and settlement patterns in the Carribean coral Monstrea faveolata","Vermeij, Foggarty, Miller",Monstrea faveolata,56,,survivorship,0%,38.349,200,9.735,,,,,,,,,,,34,,,,,,,,SALINITY,survivorship,pH,38.349,,76.698,123.302
 "Pelagic conditons affect larval behaviour, survival and settlement patterns in the Carribean coral Monstrea faveolata","Vermeij, Foggarty, Miller",Monstrea faveolata,56,,survivorship,0%,43.007,200,7.08,,,,,,,,,,,36,,,,,,,,SALINITY,survivorship,pH,43.007,,86.014,113.986
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,Hartman,A. humlis,57,,survivorship,0%,100,10,0,,,,,,,,,,,36,,28.5,,,,,,,survivorship,,100,100,10,0
+,,A. humlis,57,,survivorship,,100,10,0,,,,,,,,,,,36,,28.5,,,,,,,,,100,100,10,0
+,,A. humlis,57,,survivorship,,100,10,0,,,,,,,,,,,30,,28.5,,,,,,,,,100,100,10,0
+,,A. humlis,57,,survivorship,,94.81,10,11.139,,,,,,,,,,,30,,28.5,,,,,,,,,94.81,94.81,9.481,0.519
+,,A. humlis,57,,survivorship,,100,10,0,,,,,,,,,,,36,,31,,,,,,,,,100,100,10,0
+,,A. humlis,57,,survivorship,,99.258,10,0.248,,,,,,,,,,,36,,31,,,,,,,,,99.258,99.258,9.9258,0.0742
+,,Monstrea faveolata,57,,survivorship,,92.327,30,12.874,,,,,,,,,,,36,,28.5,,,,,,,,,92.327,92.327,27.6981,2.3019
+,,Monstrea faveolata,57,,survivorship,,77.974,30,19.554,,,,,,,,,,,36,,28.5,,,,,,,,,77.974,77.974,23.3922,6.6078
+,,Monstrea faveolata,57,,survivorship,,90.1,30,16.839,,,,,,,,,,,30,,28.5,,,,,,,,,90.1,90.1,27.03,2.97
+,,Monstrea faveolata,57,,survivorship,,69.307,30,20.297,,,,,,,,,,,30,,28.5,,,,,,,,,69.307,69.307,20.7921,9.2079
+,,Monstrea faveolata,57,,survivorship,,93.57,30,12.376,,,,,,,,,,,36,,31,,,,,,,,,93.57,93.57,28.071,1.929
+,,Monstrea faveolata,57,,survivorship,,72.288,30,13.864,,,,,,,,,,,36,,31,,,,,,,,,72.288,72.288,21.6864,8.3136
