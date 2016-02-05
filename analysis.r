@@ -1,71 +1,31 @@
 library(lme4)
 library(boot)
+source("R/functions.R")
 
-#dat <- read.csv("data_table_factors - data.csv", as.is=TRUE)
-#dat2 <- read.csv("data_table_factors - data.csv", as.is=TRUE)
+# Load datasets
+dat <- read.csv("data/data_table_factors - data.csv", as.is=TRUE)
+water <- read.csv("data/water_samples.csv", as.is=TRUE)
 
-dat <- read.csv("C:/Users/Rachael/Desktop/data_table_factors - data.csv", as.is=TRUE)
-dat2 <- read.csv("C:/Users/Rachael/Desktop/data_table_factors - data.csv", as.is=TRUE)
-water <- read.csv("C:/Users/Rachael/Desktop/water_samples.csv", as.is=TRUE)
+# Data preparation done in separate file
+source("R/data_prep.R")
 
-# Water data preperation
-water[water == "<1"] <- "0.5"
-water[water == "<0.05"] <- "0.025"
-water[water == "<0.1"] <- "0.05"
-water[water == "<0.25"] <- "0.125"
-water[water == "<0.5"] <- "0.25"
-water[water == "<0.005"] <- "0.0025"
-water[water == "<5"] <- "2.5"
+## FERTILISATION - MODEL - GLM - FULL model - sediment, ammonium, phosphorous, copper, tributyltin, zinc, cadmium, salinity, salinity sq, nitrate
 
-water[,2:14] <- apply(water[,2:14], 2, as.numeric)
-water <- water[1:3,]
-
-#remove spawn/brood data
-dat$spawnbrood[dat$spawn.brood==""] <- NA
-
-#filling all NAs in factors (because not measured in expt) with real data
-dat$sediment_mg_per_l[is.na(dat$sediment_mg_per_l) | dat$sediment_mg_per_l == 0] <- 1
-dat$ammonium_microM[is.na(dat$ammonium_microM) | dat$ammonium_microM == 0] <- 0.01391
-dat$phosphorous_microM[is.na(dat$phosphorous_microM) | dat$phosphorous_microM == 0] <- 0.446
-dat$copper_ug_per_l[is.na(dat$copper_ug_per_l) | dat$copper_ug_per_l == 0] <- 0.9
-dat$mercury_ug._per_l[is.na(dat$mercury_ug._per_l) | dat$mercury_ug._per_l == 0] <- 0.15
-dat$tributyltin_ug_per_l[is.na(dat$tributyltin_ug_per_l) | dat$tributyltin_ug_per_l == 0] <- 0.01
-dat$zinc_ug_per_l[is.na(dat$zinc_ug_per_l) | dat$zinc_ug_per_l == 0] <- 5
-dat$cadmium_ug_per_l[is.na(dat$cadmium_ug_per_l) | dat$cadmium_ug_per_l == 0] <- 0.11
-dat$nitrate_microM[is.na(dat$nitrate_microM) | dat$nitrate_microM == 0] <- 0.254
-dat$lead_ug_per_l[is.na(dat$lead_ug_per_l) | dat$lead_ug_per_l == 0] <- 0.03
-dat$nickel_ug_per_l[is.na(dat$nickel_ug_per_l) | dat$nickel_ug_per_l == 0] <- 6.6
-
-#where there is no salinity we're making it 35
-dat$salinity_psu[is.na(dat$salinity_psu)] <- 35
-#square salinity because it has a quadratic response - because it decreases on both sides from 35psu
-dat$salinity_psu_sq <- dat$salinity_psu^2
-
-#where there is no acidification_pH we're making it 8.1
-dat$acidification_pH[is.na(dat$acidification_pH)] <- 8.1
-dat$acidification_pH <- 10^dat$acidification_pH
-dat$acidification_pH_sq <- dat$acidification_pH^2
-
-#where there is no tempertaure_degrees_celcius we're making it 28
-dat$tempertaure_degrees_celcius[is.na(dat$tempertaure_degrees_celcius)] <- 28
-dat$tempertaure_degrees_celcius_sq <- dat$tempertaure_degrees_celcius^2
-dat2$tempertaure_degrees_celcius_sq <- dat$tempertaure_degrees_celcius^2
-
-# change mean value fertilisation from percentage to proportion (for plotting)
-dat$mean_value_prop <- dat$mean_value/100
-
-dat$success <- round(dat$success)
-dat$failure <- round(dat$failure)
-
-
-##FERTILISATION - MODEL - GLM - FULL model - sediment, ammonium, phosphorous, copper, tributyltin, zinc, cadmium, salinity, salinity sq, nitrate
+data <- dat[dat$life.stage == "fertilisation",]
+data$rep <- 1:nrow(data)
 
 # Seperate factors to be used
-data2 <- with(dat2, data.frame(life.stage, sediment_mg_per_l, ammonium_microM, phosphorous_microM, copper_ug_per_l, tributyltin_ug_per_l, zinc_ug_per_l, cadmium_ug_per_l, salinity_psu, nitrate_microM, acidification_pH, tempertaure_degrees_celcius, tempertaure_degrees_celcius_sq))
+#data2 <- with(dat, data.frame(life.stage, sediment_mg_per_l, ammonium_microM, phosphorous_microM, copper_ug_per_l, tributyltin_ug_per_l, zinc_ug_per_l, cadmium_ug_per_l, salinity_psu, nitrate_microM, acidification_pH, tempertaure_degrees_celcius, tempertaure_degrees_celcius_sq))
 # Subset main dataset
-data = dat[apply(!is.na(data2[, -1]), 1, sum) > 0 & data2$life.stage == "fertilisation",]
+#data <- dat[apply(!is.na(data2[, -1]), 1, sum) > 0 & data2$life.stage == "fertilisation",]
 # Add random observation variable for overdispersion
-data$rep <- 1:dim(data)[1]
+
+# Simple model without random effects to get feel for patterns
+
+
+
+mod_fert_full <- glm(cbind(success, failure) ~ sediment_mg_per_l + ammonium_microM + phosphorous_microM + copper_ug_per_l + tributyltin_ug_per_l + zinc_ug_per_l + cadmium_ug_per_l + salinity_psu + salinity_psu_sq + nitrate_microM + acidification_pH + acidification_pH_sq + tempertaure_degrees_celcius + tempertaure_degrees_celcius_sq, family=binomial, data)
+
 
 # This doesn't work because overparametrised... 
 mod_fert_full <- glmer(cbind(success, failure) ~ sediment_mg_per_l + ammonium_microM + phosphorous_microM + copper_ug_per_l + tributyltin_ug_per_l + zinc_ug_per_l + cadmium_ug_per_l + salinity_psu + salinity_psu_sq + nitrate_microM + acidification_pH + acidification_pH_sq + tempertaure_degrees_celcius + tempertaure_degrees_celcius_sq + (1 | experiment) + (1 | rep), family=binomial, data)
@@ -107,7 +67,7 @@ newdat$success <- mm %*% fixef(mod_fert_final)
 pvar1 <- diag(mm %*% tcrossprod(vcov(mod_fert_final),mm))
 tvar1 <- pvar1 + VarCorr(mod_fert_final)$experiment[1] + VarCorr(mod_fert_final)$rep[1]  ## must be adapted for more complex models
 
-plot(data$copper_ug_per_l, data$mean_value_prop, xlab="Copper (µg/L)", ylab="Proportion of Larvae Fertilised", ylim=c(0, 1))
+plot(data$copper_ug_per_l, data$mean_value_prop, xlab="Copper (?g/L)", ylab="Proportion of Larvae Fertilised", ylim=c(0, 1))
 lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
 # "CI based on fixed-effects uncertainty ONLY"
 lines(ss, inv.logit(newdat$success-2*sqrt(pvar1)), lty=2)
@@ -144,7 +104,7 @@ newdat$success <- mm %*% fixef(mod_fert_final)
 pvar1 <- diag(mm %*% tcrossprod(vcov(mod_fert_final),mm))
 tvar1 <- pvar1 + VarCorr(mod_fert_final)$experiment[1] + VarCorr(mod_fert_final)$rep[1]  ## must be adapted for more complex models
 
-plot(data$phosphorous_microM, data$mean_value_prop, xlab="Phosphorous (µM)", ylab="Proportion of Larvae Fertilised", ylim=c(0, 1))
+plot(data$phosphorous_microM, data$mean_value_prop, xlab="Phosphorous (?M)", ylab="Proportion of Larvae Fertilised", ylim=c(0, 1))
 lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
 # "CI based on fixed-effects uncertainty ONLY"
 lines(ss, inv.logit(newdat$success-2*sqrt(pvar1)), lty=2)
@@ -223,7 +183,7 @@ newdat$success <- mm %*% fixef(mod_surv_final)
 pvar1 <- diag(mm %*% tcrossprod(vcov(mod_surv_final),mm))
 tvar1 <- pvar1 + VarCorr(mod_surv_final)$experiment[1] + VarCorr(mod_surv_final)$rep[1]  ## must be adapted for more complex models
 
-plot(data$copper_ug_per_l, data$mean_value_prop, xlab="Copper (µg/L)", ylab="Proportion of Larval Survivorship", ylim=c(0, 1))
+plot(data$copper_ug_per_l, data$mean_value_prop, xlab="Copper (?g/L)", ylab="Proportion of Larval Survivorship", ylim=c(0, 1))
 lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
 # "CI based on fixed-effects uncertainty ONLY"
 lines(ss, inv.logit(newdat$success-2*sqrt(pvar1)), lty=2)
@@ -241,7 +201,7 @@ newdat$success <- mm %*% fixef(mod_surv_final)
 pvar1 <- diag(mm %*% tcrossprod(vcov(mod_surv_final),mm))
 tvar1 <- pvar1 + VarCorr(mod_surv_final)$experiment[1] + VarCorr(mod_surv_final)$rep[1]  ## must be adapted for more complex models
 
-plot(data$lead_ug_per_l, data$mean_value_prop, xlab="Lead (µg/L)", ylab="Proportion of Larval Survivorship", ylim=c(0, 1))
+plot(data$lead_ug_per_l, data$mean_value_prop, xlab="Lead (?g/L)", ylab="Proportion of Larval Survivorship", ylim=c(0, 1))
 lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
 # "CI based on fixed-effects uncertainty ONLY"
 lines(ss, inv.logit(newdat$success-2*sqrt(pvar1)), lty=2)
@@ -261,7 +221,7 @@ newdat$success <- mm %*% fixef(mod_surv_final)
 pvar1 <- diag(mm %*% tcrossprod(vcov(mod_surv_final),mm))
 tvar1 <- pvar1 + VarCorr(mod_surv_final)$experiment[1] + VarCorr(mod_surv_final)$rep[1]  ## must be adapted for more complex models
 
-plot(data$tempertaure_degrees_celcius, data$mean_value_prop, xlab="Temperature (°C)", ylab="Proportion of Larval Survivorship", ylim=c(0, 1))
+plot(data$tempertaure_degrees_celcius, data$mean_value_prop, xlab="Temperature (?C)", ylab="Proportion of Larval Survivorship", ylim=c(0, 1))
 lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
 # "CI based on fixed-effects uncertainty ONLY"
 lines(ss, inv.logit(newdat$success-2*sqrt(pvar1)), lty=2)
@@ -327,7 +287,7 @@ for (cc in seq(0, 200, 1)) {
 
 par(mfrow=c(1,1))
 
-plot(copper_store[,1], copper_store[,2], xlab="Copper (µg/L)", ylab="Proportion of Successful Larvae", ylim=c(0, 1), type="l")
+plot(copper_store[,1], copper_store[,2], xlab="Copper (?g/L)", ylab="Proportion of Successful Larvae", ylim=c(0, 1), type="l")
 # "CI based on fixed-effects uncertainty ONLY"
 # lines(copper_store[,1], copper_store[,3], lty=2)
 # lines(copper_store[,1], copper_store[,4], lty=2)
