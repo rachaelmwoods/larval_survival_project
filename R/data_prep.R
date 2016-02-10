@@ -14,7 +14,7 @@ water <- water[1:3,]
 
 # Look at data
 
-dat$tempertaure_degrees_kelvin <- dat$tempertaure_degrees_celcius + 273.15
+dat$tempertaure_degrees_kelvin <- log10(dat$tempertaure_degrees_celcius + 273.15)
 
 #remove spawn/brood data
 dat$spawnbrood[dat$spawn.brood==""] <- NA
@@ -53,7 +53,7 @@ dat$salinity_psu_sq <- dat$salinity_psu^2
 
 #where there is no acidification_pH we're making it 8.1
 #dat$acidification_pH[is.na(dat$acidification_pH)] <- 8.1
-dat$acidification_pH <- 10^dat$acidification_pH
+dat$acidification_pH <- dat$acidification_pH
 dat$acidification_pH_sq <- dat$acidification_pH^2
 
 #where there is no tempertaure_degrees_celcius we're making it 28

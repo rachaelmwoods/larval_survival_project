@@ -110,8 +110,7 @@ mod_fert_full <- glm(cbind(success, failure) ~ sediment_mg_per_l + ammonium_micr
 summary(mod_fert_full)
 drop1(mod_fert_full, test="Chisq")
 
-mod_fert_full <- glmer(cbind(success, failure) ~ sediment_mg_per_l + ammonium_microM + phosphorous_microM + copper_ug_per_l + salinity_psu + salinity_psu_sq + (1 | experiment) + (1 | rep), family=binomial, data=dat_fert2)
-
+mod_fert_full <- glmer(cbind(success, failure) ~ sediment_mg_per_l + ammonium_microM + phosphorous_microM + copper_ug_per_l + salinity_psu + salinity_psu_sq + (1 | experiment) + (1 | rep), family=binomial, data=dat_fert2, control=glmerControl(optimizer="bobyqa", optCtrl=list(maxfun=2e4)))
 summary(mod_fert_full)
 
 # Below should be less than one (or else overdispersion)
@@ -120,7 +119,7 @@ sum(residuals(mod_fert_full, type="pearson")^2)/df.residual(mod_fert_full)
 drop1(mod_fert_full, test="Chisq")
 
 ##PLOTS FOR FERTILISATION##
-par(mfrow=c(5,2))
+par(mfrow=c(3,2))
 
 # COPPER
 ss <- seq(min(dat_fert2$copper_ug_per_l), max(dat_fert2$copper_ug_per_l), 0.05)
@@ -255,12 +254,30 @@ plot(mean_value_prop ~ salinity_psu, data=dat_surv)
 ss <- sort(dat_surv$salinity_psu)
 lines(ss, predict(mod_surv, list(salinity_psu = ss, salinity_psu_sq = ss^2), type="response"))
 
+drop1(mod_surv, test="Chisq")
+
+mod_surv2 <- glm(cbind(success, failure) ~ salinity_psu, family=binomial, data=dat_surv)
+plot(mean_value_prop ~ salinity_psu, data=dat_surv)
+ss <- sort(dat_surv$salinity_psu)
+lines(ss, predict(mod_surv2, list(salinity_psu = ss), type="response"))
+
+
+
 # acidification - VERY WEAK
 mod_surv <- glm(cbind(success, failure) ~ acidification_pH + acidification_pH_sq, family=binomial, data=dat_surv)
 summary(mod_surv)
+drop1(mod_surv, test="Chisq")
 plot(mean_value_prop ~ acidification_pH, data=dat_surv)
 ss <- sort(dat_surv$acidification_pH)
 lines(ss, predict(mod_surv, list(acidification_pH = ss, acidification_pH_sq = ss^2), type="response"))
+
+# Drop squared part
+mod_surv2 <- glm(cbind(success, failure) ~ acidification_pH, family=binomial, data=dat_surv)
+summary(mod_surv2)
+plot(mean_value_prop ~ acidification_pH, data=dat_surv)
+ss <- sort(dat_surv$acidification_pH)
+lines(ss, predict(mod_surv2, list(acidification_pH = ss), type="response"))
+
 
 # temperature
 mod_surv <- glm(cbind(success, failure) ~ tempertaure_degrees_kelvin + tempertaure_degrees_kelvin_sq, family=binomial, data=dat_surv)
@@ -270,37 +287,41 @@ ss <- sort(dat_surv$tempertaure_degrees_kelvin)
 lines(ss, predict(mod_surv, list(tempertaure_degrees_kelvin = ss, tempertaure_degrees_kelvin_sq = ss^2), type="response"))
 
 
-##FULL MODEL##
-dat_surv2 <- dat_surv[c("success", "failure", "ammonium_microM", "copper_ug_per_l", "lead_ug_per_l", "salinity_psu", "salinity_psu_sq", "acidification_pH", "acidification_pH_sq", "tempertaure_degrees_kelvin", "tempertaure_degrees_kelvin_sq", "experiment", "mean_value_prop")]
-dat_surv2 <- dat_surv2[!(is.na(dat_surv2$ammonium_microM) & is.na(dat_surv2$copper_ug_per_l) & is.na(dat_surv2$lead_ug_per_l) & is.na(dat_surv2$salinity_psu) & is.na(dat_surv2$acidification_pH) & is.na(dat_surv2$tempertaure_degrees_kelvin)),]
+
+##FULL MODEL##, "acidification_pH"   
+dat_surv2 <- dat_surv[c("success", "failure", "copper_ug_per_l", "lead_ug_per_l", "tempertaure_degrees_kelvin", "acidification_pH", "tempertaure_degrees_kelvin_sq", "experiment", "mean_value_prop")]
+dat_surv2 <- dat_surv2[!(is.na(dat_surv2$copper_ug_per_l) & is.na(dat_surv2$lead_ug_per_l) & is.na(dat_surv2$acidification_pH) & is.na(dat_surv2$tempertaure_degrees_kelvin)),]
 
 
-dat_surv2$ammonium_microM[is.na(dat_surv2$ammonium_microM)] <- log10(0.01391)
 dat_surv2$copper_ug_per_l[is.na(dat_surv2$copper_ug_per_l)] <- log10(0.9)
 dat_surv2$lead_ug_per_l[is.na(dat_surv2$lead_ug_per_l)] <- log10(0.03)
 
-dat_surv2$salinity_psu[is.na(dat_surv2$salinity_psu)] <- 34
-#square salinity because it has a quadratic response - because it decreases on both sides from 35psu
-dat_surv2$salinity_psu_sq <- dat_surv2$salinity_psu^2
+dat_surv2$acidification_pH[is.na(dat_surv2$acidification_pH)] <- 10^8.1
 
-dat_surv2$acidification_pH[is.na(dat_surv2$acidification_pH)] <- 8.1
+dat_surv2$tempertaure_degrees_kelvin[is.na(dat_surv2$tempertaure_degrees_kelvin)] <- log10(301)
 #square salinity because it has a quadratic response - because it decreases on both sides from 35psu
-dat_surv2$acidification_pH <- dat_surv2$acidification_pH^2
-
-dat_surv2$tempertaure_degrees_kelvin[is.na(dat_surv2$tempertaure_degrees_kelvin)] <- 301
-#square salinity because it has a quadratic response - because it decreases on both sides from 35psu
-dat_surv2$salinity_psu_sq <- dat_surv2$tempertaure_degrees_kelvin^2
+dat_surv2$tempertaure_degrees_kelvin_sq <- dat_surv2$tempertaure_degrees_kelvin^2
 
 
 dat_surv2$rep <- 1:nrow(dat_surv2)
 
+# # Re-scaling data
+# dat_surv3 <- dat_surv2
+# dat_surv3[c("copper_ug_per_l", "lead_ug_per_l", "acidification_pH", "tempertaure_degrees_kelvin", "tempertaure_degrees_kelvin_sq")] <- scale(dat_surv3[c("copper_ug_per_l", "lead_ug_per_l", "acidification_pH", "tempertaure_degrees_kelvin", "tempertaure_degrees_kelvin_sq")])
+
 ## MODEL##
-mod_surv_full <- glm(cbind(success, failure) ~ ammonium_microM + copper_ug_per_l + lead_ug_per_l + salinity_psu + salinity_psu_sq + acidification_pH + acidification_pH_sq + tempertaure_degrees_kelvin + tempertaure_degrees_kelvin_sq, family=binomial, data=dat_surv2)
+
+
+mod_surv_full <- glm(cbind(success, failure) ~ copper_ug_per_l + lead_ug_per_l + acidification_pH + tempertaure_degrees_kelvin + tempertaure_degrees_kelvin_sq, family=binomial, data=dat_surv2)
 summary(mod_surv_full)
 drop1(mod_surv_full, test="Chisq")
 
 
-mod_surv_full <- glmer(cbind(success, failure) ~ ammonium_microM + copper_ug_per_l + lead_ug_per_l + salinity_psu + salinity_psu_sq + acidification_pH + acidification_pH_sq + tempertaure_degrees_kelvin + tempertaure_degrees_kelvin_sq + (1 | experiment) + (1 | rep), family=binomial, data=dat_surv2)
+
+
+mod_surv_full <- glmer(cbind(success, failure) ~ copper_ug_per_l + lead_ug_per_l + acidification_pH + tempertaure_degrees_kelvin + tempertaure_degrees_kelvin_sq + (1 | experiment) + (1 | rep), family=binomial, data=dat_surv2)
+
+
 
 summary(mod_surv_full)
 
