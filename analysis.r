@@ -130,7 +130,7 @@ newdat$success <- mm %*% fixef(mod_fert_full)
 pvar1 <- diag(mm %*% tcrossprod(vcov(mod_fert_full),mm))
 tvar1 <- pvar1 + VarCorr(mod_fert_full)$experiment[1] + VarCorr(mod_fert_full)$rep[1]  ## must be adapted for more complex models
 
-plot(dat_fert2$copper_ug_per_l, dat_fert2$mean_value_prop, xlab="Copper (?g/L)", ylab="Proportion of Larvae Fertilised", ylim=c(0, 1))
+plot(dat_fert2$copper_ug_per_l, dat_fert2$mean_value_prop, xlab="Copper", ylab="Proportion of Larvae Fertilised", ylim=c(0, 1))
 lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
 # "CI based on fixed-effects uncertainty ONLY"
 lines(ss, inv.logit(newdat$success-2*sqrt(pvar1)), lty=2)
@@ -148,7 +148,7 @@ newdat$success <- mm %*% fixef(mod_fert_full)
 pvar1 <- diag(mm %*% tcrossprod(vcov(mod_fert_full),mm))
 tvar1 <- pvar1 + VarCorr(mod_fert_full)$experiment[1] + VarCorr(mod_fert_full)$rep[1]  ## must be adapted for more complex models
 
-plot(dat_fert2$sediment_mg_per_l, dat_fert2$mean_value_prop, xlab="Copper (?g/L)", ylab="Proportion of Larvae Fertilised", ylim=c(0, 1))
+plot(dat_fert2$sediment_mg_per_l, dat_fert2$mean_value_prop, xlab="Sediment", ylab="Proportion of Larvae Fertilised", ylim=c(0, 1))
 lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
 # "CI based on fixed-effects uncertainty ONLY"
 lines(ss, inv.logit(newdat$success-2*sqrt(pvar1)), lty=2)
@@ -166,7 +166,7 @@ newdat$success <- mm %*% fixef(mod_fert_full)
 pvar1 <- diag(mm %*% tcrossprod(vcov(mod_fert_full),mm))
 tvar1 <- pvar1 + VarCorr(mod_fert_full)$experiment[1] + VarCorr(mod_fert_full)$rep[1]  ## must be adapted for more complex models
 
-plot(dat_fert2$ammonium_microM, dat_fert2$mean_value_prop, xlab="Copper (?g/L)", ylab="Proportion of Larvae Fertilised", ylim=c(0, 1))
+plot(dat_fert2$ammonium_microM, dat_fert2$mean_value_prop, xlab="Ammonium", ylab="Proportion of Larvae Fertilised", ylim=c(0, 1))
 lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
 # "CI based on fixed-effects uncertainty ONLY"
 lines(ss, inv.logit(newdat$success-2*sqrt(pvar1)), lty=2)
@@ -184,7 +184,7 @@ newdat$success <- mm %*% fixef(mod_fert_full)
 pvar1 <- diag(mm %*% tcrossprod(vcov(mod_fert_full),mm))
 tvar1 <- pvar1 + VarCorr(mod_fert_full)$experiment[1] + VarCorr(mod_fert_full)$rep[1]  ## must be adapted for more complex models
 
-plot(dat_fert2$phosphorous_microM, dat_fert2$mean_value_prop, xlab="Copper (?g/L)", ylab="Proportion of Larvae Fertilised", ylim=c(0, 1))
+plot(dat_fert2$phosphorous_microM, dat_fert2$mean_value_prop, xlab="Phosphorous", ylab="Proportion of Larvae Fertilised", ylim=c(0, 1))
 lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
 # "CI based on fixed-effects uncertainty ONLY"
 lines(ss, inv.logit(newdat$success-2*sqrt(pvar1)), lty=2)
@@ -203,7 +203,7 @@ newdat$success <- mm %*% fixef(mod_fert_full)
 pvar1 <- diag(mm %*% tcrossprod(vcov(mod_fert_full),mm))
 tvar1 <- pvar1 + VarCorr(mod_fert_full)$experiment[1] + VarCorr(mod_fert_full)$rep[1]  ## must be adapted for more complex models
 
-plot(dat_fert2$salinity_psu, dat_fert2$mean_value_prop, xlab="Copper (?g/L)", ylab="Proportion of Larvae Fertilised", ylim=c(0, 1))
+plot(dat_fert2$salinity_psu, dat_fert2$mean_value_prop, xlab="Salinity", ylab="Proportion of Larvae Fertilised", ylim=c(0, 1))
 lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
 # "CI based on fixed-effects uncertainty ONLY"
 lines(ss, inv.logit(newdat$success-2*sqrt(pvar1)), lty=2)
@@ -309,14 +309,11 @@ dat_surv2$rep <- 1:nrow(dat_surv2)
 # dat_surv3 <- dat_surv2
 # dat_surv3[c("copper_ug_per_l", "lead_ug_per_l", "acidification_pH", "tempertaure_degrees_kelvin", "tempertaure_degrees_kelvin_sq")] <- scale(dat_surv3[c("copper_ug_per_l", "lead_ug_per_l", "acidification_pH", "tempertaure_degrees_kelvin", "tempertaure_degrees_kelvin_sq")])
 
+
 ## MODEL##
-
-
 mod_surv_full <- glm(cbind(success, failure) ~ copper_ug_per_l + lead_ug_per_l + acidification_pH + tempertaure_degrees_kelvin + tempertaure_degrees_kelvin_sq, family=binomial, data=dat_surv2)
 summary(mod_surv_full)
 drop1(mod_surv_full, test="Chisq")
-
-
 
 
 mod_surv_full <- glmer(cbind(success, failure) ~ copper_ug_per_l + lead_ug_per_l + acidification_pH + tempertaure_degrees_kelvin + tempertaure_degrees_kelvin_sq + (1 | experiment) + (1 | rep), family=binomial, data=dat_surv2)
@@ -336,21 +333,21 @@ par(mfrow=c(2,2))
 
 # COPPER
 ss <- seq(min(dat_surv2$copper_ug_per_l), max(dat_surv2$copper_ug_per_l), 0.05)
-newdat <- expand.grid(copper_ug_per_l = ss, lead_ug_per_l=log10(0.03), salinity_psu = 34, salinity_psu_sq = 34^2, tempertaure_degrees_kelvin = 301, tempertaure_degrees_kelvin_sq = 301^2 success=0, failure=0)
+newdat <- expand.grid(copper_ug_per_l = ss, lead_ug_per_l=log10(0.03), tempertaure_degrees_kelvin = 301, tempertaure_degrees_kelvin_sq = 301^2 success=0, failure=0)
 mm <- model.matrix(terms(mod_surv_full), newdat)
 
 newdat$success <- mm %*% fixef(mod_surv_full)
 pvar1 <- diag(mm %*% tcrossprod(vcov(mod_surv_full),mm))
 tvar1 <- pvar1 + VarCorr(mod_surv_full)$experiment[1] + VarCorr(mod_surv_full)$rep[1]  
 
-plot(dat_surv2$copper_ug_per_l, dat_surv2$mean_value_prop, xlab="Copper (?g/L)", ylab="Proportion of Larvae Survived", ylim=c(0, 1))
+plot(dat_surv2$copper_ug_per_l, dat_surv2$mean_value_prop, xlab="Copper", ylab="Proportion of Larvae Survived", ylim=c(0, 1))
 lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
 lines(ss, inv.logit(newdat$success-2*sqrt(pvar1)), lty=2)
 lines(ss, inv.logit(newdat$success+2*sqrt(pvar1)), lty=2)
 
 # LEAD
 ss <- seq(min(dat_surv2$lead_ug_per_l), max(dat_surv2$lead_ug_per_l), 0.05)
-newdat <- expand.grid(lead_ug_per_l = ss, copper_ug_per_l=log10(0.9), salinity_psu = 34, salinity_psu_sq = 34^2, tempertaure_degrees_kelvin = 301, tempertaure_degrees_kelvin_sq = 301^2 success=0, failure=0)
+newdat <- expand.grid(lead_ug_per_l = ss, copper_ug_per_l=log10(0.9), tempertaure_degrees_kelvin = 301, tempertaure_degrees_kelvin_sq = 301^2 success=0, failure=0)
 mm <- model.matrix(terms(mod_surv_full), newdat)
 
 newdat$success <- mm %*% fixef(mod_surv_full)
@@ -364,33 +361,20 @@ lines(ss, inv.logit(newdat$success+2*sqrt(pvar1)), lty=2)
 
 #TEMPERATURE
 ss <- seq(min(dat_surv2$tempertaure_degrees_kelvin), max(dat_surv2$tempertaure_degrees_kelvin), 0.1)
-newdat <- expand.grid(lead_ug_per_l = 0.03, copper_ug_per_l=log10(0.9), salinity_psu = 34, salinity_psu_sq = 34^2, tempertaure_degrees_kelvin = ss, tempertaure_degrees_kelvin_sq = 0, success=0, failure=0)
-newdat$salinity_psu_sq = newdat$tempertaure_degrees_kelvin^2
+newdat <- expand.grid(lead_ug_per_l = 0.03, copper_ug_per_l=log10(0.9), tempertaure_degrees_kelvin = ss, tempertaure_degrees_kelvin_sq = 0, success=0, failure=0)
+newdat$tempertaure_degrees_kelvin = newdat$tempertaure_degrees_kelvin^2
 mm <- model.matrix(terms(mod_surv_full),newdat)
 
 newdat$success <- mm %*% fixef(mod_surv_full)
 pvar1 <- diag(mm %*% tcrossprod(vcov(mod_surv_full),mm))
 tvar1 <- pvar1 + VarCorr(mod_surv_full)$experiment[1] + VarCorr(mod_surv_full)$rep[1] 
 
-plot(dat_fert2$tempertaure_degrees_kelvin, dat_fert2$mean_value_prop, xlab="Sailinity", ylab="Proportion of Larvae Fertilised", ylim=c(0, 1))
+plot(dat_fert2$tempertaure_degrees_kelvin, dat_fert2$mean_value_prop, xlab="Temperature", ylab="Proportion of Larvae Fertilised", ylim=c(0, 1))
 lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
 lines(ss, inv.logit(newdat$success-2*sqrt(pvar1)), lty=2)
 lines(ss, inv.logit(newdat$success+2*sqrt(pvar1)), lty=2)
 
-#SALINITY
-ss <- seq(min(dat_surv2$salinity_psu), max(dat_surv2$salinity_psu), 0.1)
-newdat <- expand.grid(lead_ug_per_l = 0.03, copper_ug_per_l=log10(0.9), salinity_psu = ss, salinity_psu_sq = 0, tempertaure_degrees_kelvin = 301, tempertaure_degrees_kelvin_sq = 301^2, success=0, failure=0)
-newdat$salinity_psu_sq = newdat$salinity_psu^2
-mm <- model.matrix(terms(mod_surv_full),newdat)
 
-newdat$success <- mm %*% fixef(mod_surv_full)
-pvar1 <- diag(mm %*% tcrossprod(vcov(mod_surv_full),mm))
-tvar1 <- pvar1 + VarCorr(mod_surv_full)$experiment[1] + VarCorr(mod_surv_full)$rep[1] 
-
-plot(dat_fert2$salinity_psu, dat_fert2$mean_value_prop, xlab="Sailinity", ylab="Proportion of Larvae Fertilised", ylim=c(0, 1))
-lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
-lines(ss, inv.logit(newdat$success-2*sqrt(pvar1)), lty=2)
-lines(ss, inv.logit(newdat$success+2*sqrt(pvar1)), lty=2)
 
 ###########################
 ##LOCATIONS/WATER SAMPLES##
@@ -421,9 +405,7 @@ arrows(bp, inv.logit(water_fert$success-2*sqrt(pvar1)), bp, inv.logit(water_fert
 water_surv <- data.frame(copper_ug_per_l=water$copper_ug.l, 
                          lead_ug_per_l=water$lead_ug/l,
                          tempertaure_degrees_kelvin=water$temperature_degrees_celcius,
-                         tempertaure_degrees_kelvin_sq=water$temperature_degrees_celcius^2
-                         salinity_psu=water$salinity_g.l, 
-                         salinity_psu_sq =water$salinity_g.l^2, 
+                         tempertaure_degrees_kelvin_sq=water$temperature_degrees_celcius^2,
                          success=0, failure=0)
 
 mm_surv <- model.matrix(terms(mod_surv_full), water_surv)
