@@ -58,6 +58,7 @@ dat$acidification_pH_sq <- dat$acidification_pH^2
 
 #where there is no tempertaure_degrees_celcius we're making it 28
 #dat$tempertaure_degrees_kelvin[is.na(dat$tempertaure_degrees_kelvin)] <- 28
+dat$tempertaure_degrees_celcius_sq <- dat$tempertaure_degrees_celcius^2
 dat$tempertaure_degrees_kelvin_sq <- dat$tempertaure_degrees_kelvin^2
 
 # change mean value fertilisation from percentage to proportion (for plotting)
