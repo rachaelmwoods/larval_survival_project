@@ -386,6 +386,29 @@ lines(ss, inv.logit(newdat$success-2*sqrt(pvar1)), lty=2)
 lines(ss, inv.logit(newdat$success+2*sqrt(pvar1)), lty=2)
 
 
+###################
+#VARIANCE ANALYSIS#
+###################
+
+par(mfrow=c(1,2))
+
+library(hier.part)
+
+dat_fert = dat[apply(!is.na(dat[, -1]), 1, sum) > 0 & dat$life.stage == "fertilisation",]
+dat_surv = dat[apply(!is.na(dat[, -1]), 1, sum) > 0 & dat$life.stage == "survivorship",]
+
+factors <- data_fert[, c(17,12,14,15,21)]
+colnames(factors) <- c("Copper", "Sediment","Ammonium", "Phosphate", "Salinity") 
+hier.part(data_fert$mean_value_prop, factors, family = "binomial", gof = "logLik", barplot = TRUE)
+
+
+factors <- data_surv[, c(17,27,21)]
+colnames(factors) <- c("Copper", "Lead", "Salinity" ) 
+hier.part(data_surv$mean_value_prop, factors, family = "binomial", gof = "logLik", barplot = TRUE)
+
+
+
+
 ###########################
 ##LOCATIONS/WATER SAMPLES##
 ############################
@@ -411,7 +434,6 @@ arrows(bp, inv.logit(water_fert$success-2*sqrt(pvar1)), bp, inv.logit(water_fert
 
 
 ##Survival Model##
-
 water_surv <- data.frame(copper_ug_per_l=log10(water$copper_ug.l), 
                          lead_ug_per_l=log10(water$lead_ug.l),
                          salinity_psu=water$salinity_g.l,
@@ -423,12 +445,9 @@ water_surv$success <- mm_surv %*% fixef(mod_surv_full)
 pvar1 <- diag(mm_surv %*% tcrossprod(vcov(mod_surv_full), mm_surv))
 tvar1 <- pvar1 + VarCorr(mod_surv_full)$experiment[1] + VarCorr(mod_surv_full)$rep[1]  
 #bar plot
-bp <- barplot(t(inv.logit(water_surv$success)), xlab="Location", ylab="Proportion of Larvae Fertilised", ylim=c(0, 1), names.arg=water$sample)
+bp <- barplot(t(inv.logit(water_surv$success)), xlab="Location", ylab="Proportion of Larvae Survived", ylim=c(0, 1), names.arg=water$sample)
 #error bars
 arrows(bp, inv.logit(water_surv$success-2*sqrt(pvar1)), bp, inv.logit(water_surv$success+2*sqrt(pvar1)), code=3, angle=90)
-
-
-
 
 
 
@@ -452,28 +471,9 @@ for (cc in 1:3) {
   pvar1_surv <- diag(mm_surv %*% tcrossprod(vcov(mod_surv_full), mm_surv))
 
 
-  # newdat <- expand.grid(sediment_mg_per_l=0, phosphorous_microM=0, copper_ug_per_l = cc, salinity_psu = 35, salinity_psu_sq = 35^2, success=0, failure=0)
-  # mm <- model.matrix(terms(mod_fert_final), newdat)
-  # success_fert <- mm %*% fixef(mod_fert_final)
-  # pvar1_fert <- 2*sqrt(diag(mm %*% tcrossprod(vcov(mod_fert_final), mm)))
+vars <- sort(inv.logit(rnorm(10000, temp_fert$success, pvar1_fert)) * inv.logit(rnorm(10000, temp_surv$success, pvar1_surv)))
 
-  # p.larv <- predict(mod_surv_final, list(copper_ug_per_l, lead_ug_per_l, tempertaure_degrees_celcius, tempertaure_degrees_celcius_sq = tempertaure_degrees_celcius^2, salinity_psu, salinity_psu_sq = salinity_psu^2), type="link", se.fit=TRUE)
-
-  # newdat <- expand.grid(copper_ug_per_l=cc, lead_ug_per_l=0, salinity_psu=35, salinity_psu_sq=35^2, tempertaure_degrees_celcius=29, tempertaure_degrees_celcius_sq=29^2, success=0, failure=0)
-  # mm <- model.matrix(terms(mod_surv_final),newdat)
-  # success_surv <- mm %*% fixef(mod_surv_final)
-  # pvar1_surv <- 2*sqrt(diag(mm %*% tcrossprod(vcov(mod_surv_final),mm)))
-
-  # this part takes the mean expectation (and se) and generates 10000 random normally distributed 
-  # samples for each of the two models and multiplies them together.
-  # It then sorts these samples
-  vars <- sort(inv.logit(rnorm(10000, temp_fert$success, pvar1_fert)) * inv.logit(rnorm(10000, temp_surv$success, pvar1_surv)))
-
-  # vars[5000] # This will be the mean (median)
-  # vars[250]  # This the lower 95% confidence interval
-  # vars[9750] # The upper interval -- do you know why?
-
-  combined_store <- rbind(combined_store, c(cc, vars[5000], vars[250], vars[9750]))
+combined_store <- rbind(combined_store, c(cc, vars[5000], vars[250], vars[9750]))
 
 }
 
@@ -482,79 +482,5 @@ bp <- barplot(combined_store[,2], xlab="Location", ylab="Proportion of Larvae Fe
 arrows(bp, combined_store[,3], bp, combined_store[,4], code=3, angle=90)
 
 
-
-# par(mfrow=c(1,1))
-
-# plot(copper_store[,1], copper_store[,2], xlab="Copper (?g/L)", ylab="Proportion of Successful Larvae", ylim=c(0, 1), type="l")
-# # "CI based on fixed-effects uncertainty ONLY"
-# # lines(copper_store[,1], copper_store[,3], lty=2)
-# # lines(copper_store[,1], copper_store[,4], lty=2)
-
-# polygon(c(copper_store[,1], rev(copper_store[,1])), c(copper_store[,3], rev(copper_store[,4])), col=rgb(0,0,0,0.2), border=NA)
-
-
-# y25<-inv.logit(newdat$success-2*sqrt(pvar1))
-# y97<-inv.logit(newdat$success+2*sqrt(pvar1))
-
-# polygon(c(ss, ss[length(ss)], ss[length(ss):1], ss[1]), c(y25, y97[length(y97)], y97[length(y97):1], y25[1]), col=make.transparent('grey80', 0.5), border=NA)
-# label(.05, 1.2, leg, font=2, xpd=NA)
-
-
-
-
-# The mean above should be approximately the same as that caluclated directly form your models
-
 inv.logit(p.fert$fit) * inv.logit(p.larv$fit)
 
-#### SALINITY
-
-salinity_store <- c()
-
-for (ss in seq(18.4, 36.8, 0.1)) {
-
-  # p.fert <- predict(mod_fert_final, list(sediment_mg_per_l=0, phosphorous_microM=0, copper_ug_per_l=cc, salinity_psu=35, salinity_psu_sq = 35^2))
-
-  newdat <- expand.grid(sediment_mg_per_l=0, phosphorous_microM=0, copper_ug_per_l = 0, salinity_psu = ss, salinity_psu_sq = ss^2, success=0, failure=0)
-  mm <- model.matrix(terms(mod_fert_final), newdat)
-  success_fert <- mm %*% fixef(mod_fert_final)
-  pvar1_fert <- 2*sqrt(diag(mm %*% tcrossprod(vcov(mod_fert_final), mm)))
-
-  # p.larv <- predict(mod_surv_final, list(copper_ug_per_l, lead_ug_per_l, tempertaure_degrees_celcius, tempertaure_degrees_celcius_sq = tempertaure_degrees_celcius^2, salinity_psu, salinity_psu_sq = salinity_psu^2), type="link", se.fit=TRUE)
-
-  newdat <- expand.grid(copper_ug_per_l=0, lead_ug_per_l=0, salinity_psu=ss, salinity_psu_sq=ss^2, tempertaure_degrees_celcius=29, tempertaure_degrees_celcius_sq=29^2, success=0, failure=0)
-  mm <- model.matrix(terms(mod_surv_final),newdat)
-  success_surv <- mm %*% fixef(mod_surv_final)
-  pvar1_surv <- 2*sqrt(diag(mm %*% tcrossprod(vcov(mod_surv_final),mm)))
-
-  # this part takes the mean expectation (and se) and generates 10000 random normally distributed 
-  # samples for each of the two models and multiplies them together.
-  # It then sorts these samples
-  vars <- sort(inv.logit(rnorm(10000, success_fert, pvar1_fert)) * inv.logit(rnorm(10000, success_surv, pvar1_surv)))
-
-  # vars[5000] # This will be the mean (median)
-  # vars[250]  # This the lower 95% confidence interval
-  # vars[9750] # The upper interval -- do you know why?
-
-  salinity_store <- rbind(salinity_store, c(ss, vars[5000], vars[250], vars[9750]))
-
-}
-
-par(mfrow=c(1,1))
-
-plot(salinity_store[,1], salinity_store[,2], xlab="Salinity (psu)", ylab="Proportion of Successful Larvae", ylim=c(0, 1), type="l")
-# "CI based on fixed-effects uncertainty ONLY"
-# lines(salinity_store[,1], salinity_store[,3], lty=2)
-# lines(salinity_store[,1], salinity_store[,4], lty=2)
-polygon(c(salinity_store[,1], rev(salinity_store[,1])), c(salinity_store[,3], rev(salinity_store[,4])), col=rgb(0,0,0,0.2), border=NA)
-
-
-# y25<-inv.logit(newdat$success-2*sqrt(pvar1))
-# y97<-inv.logit(newdat$success+2*sqrt(pvar1))
-
-# polygon(c(ss, ss[length(ss)], ss[length(ss):1], ss[1]), c(y25, y97[length(y97)], y97[length(y97):1], y25[1]), col=make.transparent('grey80', 0.5), border=NA)
-# label(.05, 1.2, leg, font=2, xpd=NA)
-
-
-
-
- 
