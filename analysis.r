@@ -1,5 +1,6 @@
 library(lme4)
 library(boot)
+library(hier.part)
 source("R/functions.R")
 
 # Load datasets
@@ -20,74 +21,77 @@ par(mfrow=c(2,5))
 
 #sediment
 mod_fert <- glm(cbind(success, failure) ~ sediment_mg_per_l, family=binomial, data=dat_fert)
-summary(mod_fert)
-plot(mean_value_prop ~ sediment_mg_per_l, data=dat_fert)
+plot(mean_value_prop ~ sediment_mg_per_l, col = "dodgerblue", xlab = "Sediment (mg/L)", ylab = "",  pch=16, las=1, data=dat_fert)
 ss <- sort(dat_fert$sediment_mg_per_l)
-lines(ss, predict(mod_fert, list(sediment_mg_per_l = ss), type="response"))
+lines(ss, predict(mod_fert, list(sediment_mg_per_l = ss), type="response"), lwd = 1)
 
 #ammonium
 mod_fert <- glm(cbind(success, failure) ~ ammonium_microM, family=binomial, data=dat_fert)
 summary(mod_fert)
-plot(mean_value_prop ~ ammonium_microM, data=dat_fert)
+plot(mean_value_prop ~ ammonium_microM, col = "dodgerblue", xlab = "Ammonium (µM)", ylab = "",  pch=16, data=dat_fert)
 ss <- sort(dat_fert$ammonium_microM)
 lines(ss, predict(mod_fert, list(ammonium_microM = ss), type="response"))
 
-#phosphorous
+#phosphate
 mod_fert <- glm(cbind(success, failure) ~ phosphorous_microM, family=binomial, data=dat_fert)
 summary(mod_fert)
-plot(mean_value_prop ~ phosphorous_microM, data=dat_fert)
+plot(mean_value_prop ~ phosphorous_microM, col = "dodgerblue", xlab = "Phosphate (µM)", ylab = "",  pch=16, las=1, data=dat_fert)
 ss <- sort(dat_fert$phosphorous_microM)
 lines(ss, predict(mod_fert, list(phosphorous_microM = ss), type="response"))
 
 #copper
 mod_fert <- glm(cbind(success, failure) ~ copper_ug_per_l, family=binomial, data=dat_fert)
 summary(mod_fert)
-plot(mean_value_prop ~ copper_ug_per_l, data=dat_fert)
+plot(mean_value_prop ~ copper_ug_per_l, col = "dodgerblue", xlab = "Copper (µg/L)", ylab = "",  pch=16, las=1, data=dat_fert)
 ss <- sort(dat_fert$copper_ug_per_l)
 lines(ss, predict(mod_fert, list(copper_ug_per_l = ss), type="response"))
 
-#tributyltin_ug_per_l - REMOVE not enough data!!
+#tributyltin_ug_per_l - NOT ENOUGH DATA
 
 #zinc - REMOVE
 mod_fert <- glm(cbind(success, failure) ~ zinc_ug_per_l, family=binomial, data=dat_fert)
 summary(mod_fert)
-plot(mean_value_prop ~ zinc_ug_per_l, data=dat_fert)
+plot(mean_value_prop ~ zinc_ug_per_l, col = "dodgerblue", xlab = "Zinc (µg/L)", ylab = "",  pch=16, las=1, data=dat_fert)
 ss <- sort(dat_fert$zinc_ug_per_l)
 lines(ss, predict(mod_fert, list(zinc_ug_per_l = ss), type="response"))
 
 #cadmium = VERY WEAK RELATOPNSHIP
 mod_fert <- glm(cbind(success, failure) ~ cadmium_ug_per_l, family=binomial, data=dat_fert)
 summary(mod_fert)
-plot(mean_value_prop ~ cadmium_ug_per_l, data=dat_fert)
+plot(mean_value_prop ~ cadmium_ug_per_l, col = "dodgerblue", xlab = "Cadmium (µg/L)", ylab = "",  pch=16, las=1, data=dat_fert)
 ss <- sort(dat_fert$cadmium_ug_per_l)
 lines(ss, predict(mod_fert, list(cadmium_ug_per_l = ss), type="response"))
-
+    
 #nitrate_microM - REMOVE
 mod_fert <- glm(cbind(success, failure) ~ nitrate_microM, family=binomial, data=dat_fert)
 summary(mod_fert)
-plot(mean_value_prop ~ nitrate_microM, data=dat_fert)
+plot(mean_value_prop ~ nitrate_microM, col = "dodgerblue", xlab = "Nitrate (µM)", ylab = "",  pch=16, las=1, data=dat_fert)
 ss <- sort(dat_fert$nitrate_microM)
 lines(ss, predict(mod_fert, list(nitrate_microM = ss), type="response"))
 
 #salinity
 mod_fert <- glm(cbind(success, failure) ~ salinity_psu + salinity_psu_sq, family=binomial, data=dat_fert)
 summary(mod_fert)
-plot(mean_value_prop ~ salinity_psu, data=dat_fert)
+plot(mean_value_prop ~ salinity_psu, col = "dodgerblue", xlab = "Salinity (psu)", ylab = "",  pch=16, las=1, data=dat_fert)
 ss <- sort(dat_fert$salinity_psu)
 lines(ss, predict(mod_fert, list(salinity_psu = ss, salinity_psu_sq = ss^2), type="response"))
 
 #acidification - VERY WEAK RESPONSE
 mod_fert <- glm(cbind(success, failure) ~ acidification_pH + acidification_pH_sq, family=binomial, data=dat_fert)
 summary(mod_fert)
-plot(mean_value_prop ~ acidification_pH, data=dat_fert)
+plot(mean_value_prop ~ acidification_pH, col = "dodgerblue", xlab = "Acidification (pH)", ylab = "",  pch=16, las=1, data=dat_fert)
 ss <- sort(dat_fert$acidification_pH)
 lines(ss, predict(mod_fert, list(acidification_pH = ss, acidification_pH_sq = ss^2), type="response"))
 drop1(mod_fert, test="Chisq")
 
 #tempertaure - REMOVE not enough data
-mod_fert <- glm(cbind(success, failure) ~ tempertaure_degrees_celcius, family=binomial, data=dat_fert)
+mod_fert <- glm(cbind(success, failure) ~ tempertaure_degrees_celcius + tempertaure_degrees_celcius_sq, family=binomial, data=dat_fert)
 summary(mod_fert)
-plot(mean_value_prop ~ tempertaure_degrees_celcius, data=dat_fert)
+plot(mean_value_prop ~ tempertaure_degrees_celcius, col = "dodgerblue", xlab = "Temperature (C)", ylab = "",  pch=16, las=1, data=dat_fert)
+ss <- sort(dat_fert$tempertaure_degrees_celcius)
+lines(ss, predict(mod_fert, list(tempertaure_degrees_celcius = ss, tempertaure_degrees_celcius_sq = ss^2), type="response"))
+
+title(ylab = "Some Values", outer = TRUE, line = 3)
 
 
 ## FULL MODEL
@@ -219,45 +223,47 @@ lines(ss, inv.logit(newdat$success+2*sqrt(pvar1)), lty=2)
 dat_surv <- dat[dat$life.stage == "survivorship",]
 dat_surv$rep <- 1:nrow(dat_surv)
 
+par(mfrow=c(1,1))
+
 #ammonium - few points
 mod_surv <- glm(cbind(success, failure) ~ ammonium_microM, family=binomial, data=dat_surv)
 summary(mod_surv)
-plot(mean_value_prop ~ ammonium_microM, data=dat_surv)
+plot(mean_value_prop ~ ammonium_microM,  col = "dodgerblue", xlab = "Ammonium (µM)", ylab = "",  pch=16, las=0, data=dat_surv)
 ss <- sort(dat_surv$ammonium_microM)
 lines(ss, predict(mod_surv, list(ammonium_microM = ss), type="response"))
 
 #copper
 mod_surv <- glm(cbind(success, failure) ~ copper_ug_per_l, family=binomial, data=dat_surv)
 summary(mod_surv)
-plot(mean_value_prop ~ copper_ug_per_l, data=dat_surv)
+plot(mean_value_prop ~ copper_ug_per_l,  col = "dodgerblue", xlab = "Copper (µg/L)", ylab = "",  pch=16, las=1, data=dat_surv)
 ss <- sort(dat_surv$copper_ug_per_l)
 lines(ss, predict(mod_surv, list(copper_ug_per_l = ss), type="response"))
 
 # mercury- REMOVE
 mod_surv <- glm(cbind(success, failure) ~ mercury_ug._per_l, family=binomial, data=dat_surv)
 summary(mod_surv)
-plot(mean_value_prop ~ mercury_ug._per_l, data=dat_surv)
+plot(mean_value_prop ~ mercury_ug._per_l,  col = "dodgerblue", xlab = "Mercury (µg/L)", ylab = "",  pch=16, las=1, data=dat_surv)
 ss <- sort(dat_surv$mercury_ug._per_l)
 lines(ss, predict(mod_surv, list(mercury_ug._per_l = ss), type="response"))
 
 # lead
 mod_surv <- glm(cbind(success, failure) ~ lead_ug_per_l, family=binomial, data=dat_surv)
 summary(mod_surv)
-plot(mean_value_prop ~ lead_ug_per_l, data=dat_surv)
+plot(mean_value_prop ~ lead_ug_per_l,  col = "dodgerblue", xlab = "Lead (µg/L)", ylab = "",  pch=16, las=1, data=dat_surv)
 ss <- sort(dat_surv$lead_ug_per_l)
 lines(ss, predict(mod_surv, list(lead_ug_per_l = ss), type="response"))
 
 #salinity - REMOVE
 mod_surv <- glm(cbind(success, failure) ~ salinity_psu + salinity_psu_sq, family=binomial, data=dat_surv)
 summary(mod_surv)
-plot(mean_value_prop ~ salinity_psu, data=dat_surv)
+plot(mean_value_prop ~ salinity_psu,  col = "dodgerblue", xlab = "Salinity (psu)", ylab = "",  pch=16, las=1, data=dat_surv)
 ss <- sort(dat_surv$salinity_psu)
 lines(ss, predict(mod_surv, list(salinity_psu = ss, salinity_psu_sq = ss^2), type="response"))
 
 drop1(mod_surv, test="Chisq")
 
 mod_surv2 <- glm(cbind(success, failure) ~ salinity_psu, family=binomial, data=dat_surv)
-plot(mean_value_prop ~ salinity_psu, data=dat_surv)
+plot(mean_value_prop ~ salinity_psu, col = "dodgerblue", xlab = "Salinity (psu)", ylab = "",  pch=16, las=1, data=dat_surv)
 ss <- sort(dat_surv$salinity_psu)
 lines(ss, predict(mod_surv2, list(salinity_psu = ss), type="response"))
 
@@ -267,14 +273,14 @@ drop1(mod_surv2, test="Chisq")
 mod_surv <- glm(cbind(success, failure) ~ acidification_pH + acidification_pH_sq, family=binomial, data=dat_surv)
 summary(mod_surv)
 drop1(mod_surv, test="Chisq")
-plot(mean_value_prop ~ acidification_pH, data=dat_surv)
+plot(mean_value_prop ~ acidification_pH,  col = "dodgerblue", xlab = "Acidification (pH", ylab = "",  pch=16, las=1, data=dat_surv)
 ss <- sort(dat_surv$acidification_pH)
 lines(ss, predict(mod_surv, list(acidification_pH = ss, acidification_pH_sq = ss^2), type="response"))
 
 # Drop squared part
 mod_surv2 <- glm(cbind(success, failure) ~ acidification_pH, family=binomial, data=dat_surv)
 summary(mod_surv2)
-plot(mean_value_prop ~ acidification_pH, data=dat_surv)
+plot(mean_value_prop ~ acidification_pH,  col = "dodgerblue", xlab = "Temperature (C)", ylab = "",  pch=16, las=1, data=dat_surv)
 ss <- sort(dat_surv$acidification_pH)
 lines(ss, predict(mod_surv2, list(acidification_pH = ss), type="response"))
 
@@ -284,7 +290,7 @@ drop1(mod_surv2, test="Chisq")
 # temperature
 mod_surv <- glm(cbind(success, failure) ~ tempertaure_degrees_celcius + tempertaure_degrees_celcius_sq, family=binomial, data=dat_surv)
 summary(mod_surv)
-plot(mean_value_prop ~ tempertaure_degrees_celcius, data=dat_surv)
+plot(mean_value_prop ~ tempertaure_degrees_celcius,  col = "dodgerblue", xlab = "Temperature (C)", ylab = "",  pch=16, las=1, data=dat_surv)
 ss <- sort(dat_surv$tempertaure_degrees_celcius)
 lines(ss, predict(mod_surv, list(tempertaure_degrees_celcius = ss, tempertaure_degrees_celcius_sq = ss^2), type="response"))
 
@@ -392,8 +398,6 @@ lines(ss, inv.logit(newdat$success+2*sqrt(pvar1)), lty=2)
 
 par(mfrow=c(1,2))
 
-library(hier.part)
-
 dat_fert = dat[apply(!is.na(dat[, -1]), 1, sum) > 0 & dat$life.stage == "fertilisation",]
 dat_surv = dat[apply(!is.na(dat[, -1]), 1, sum) > 0 & dat$life.stage == "survivorship",]
 
@@ -477,7 +481,7 @@ combined_store <- rbind(combined_store, c(cc, vars[5000], vars[250], vars[9750])
 
 }
 
-bp <- barplot(combined_store[,2], xlab="Location", ylab="Proportion of Larvae Fertilised", ylim=c(0, 1), names.arg=water$sample)
+bp <- barplot(combined_store[,2], xlab="Location", ylab="Proportion of Succesful Larvae", ylim=c(0, 1), names.arg=water$sample)
 #error bars
 arrows(bp, combined_store[,3], bp, combined_store[,4], code=3, angle=90)
 
