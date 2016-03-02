@@ -307,7 +307,7 @@ drop1(mod_surv2, test="Chisq")
 mod_surv <- glm(cbind(success, failure) ~ acidification_pH + acidification_pH_sq, family=binomial, data=dat_surv)
 summary(mod_surv)
 drop1(mod_surv, test="Chisq")
-plot(mean_value_prop ~ acidification_pH,  col = "dodgerblue", xlab = "Acidification (pH", ylab = "",  pch=16, las=1, data=dat_surv)
+plot(mean_value_prop ~ acidification_pH,  col = "dodgerblue", xlab = "Acidification (pH)", ylab = "",  pch=16, las=1, data=dat_surv)
 ss <- sort(dat_surv$acidification_pH)
 lines(ss, predict(mod_surv, list(acidification_pH = ss, acidification_pH_sq = ss^2), type="response"))
 
@@ -381,7 +381,8 @@ drop1(mod_surv_full, test="Chisq")
 
 
 ##PLOTS FOR SURVIVAL##
-par(mfrow=c(2,2))
+par(mfrow=c(2,3))
+    
 
 # COPPER
 ss <- seq(min(dat_surv2$copper_ug_per_l), max(dat_surv2$copper_ug_per_l), 0.05)
@@ -392,10 +393,11 @@ newdat$success <- mm %*% fixef(mod_surv_full)
 pvar1 <- diag(mm %*% tcrossprod(vcov(mod_surv_full),mm))
 tvar1 <- pvar1 + VarCorr(mod_surv_full)$experiment[1] + VarCorr(mod_surv_full)$rep[1]  
 
-plot(dat_surv2$copper_ug_per_l, dat_surv2$mean_value_prop, xlab="Copper", ylab="Proportion of Larvae Survived", ylim=c(0, 1))
-lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
+plot(dat_surv2$copper_ug_per_l, dat_surv2$mean_value_prop, col = "dodgerblue", xlab="Copper", ylab="", pch=16, las=1, ylim=c(0, 1))
+lines(ss, inv.logit(newdat$success), lwd=1, lty=1)
 lines(ss, inv.logit(newdat$success-2*sqrt(pvar1)), lty=2)
 lines(ss, inv.logit(newdat$success+2*sqrt(pvar1)), lty=2)
+
 
 # LEAD
 ss <- seq(min(dat_surv2$lead_ug_per_l), max(dat_surv2$lead_ug_per_l), 0.05)
@@ -406,7 +408,7 @@ newdat$success <- mm %*% fixef(mod_surv_full)
 pvar1 <- diag(mm %*% tcrossprod(vcov(mod_surv_full),mm))
 tvar1 <- pvar1 + VarCorr(mod_surv_full)$experiment[1] + VarCorr(mod_surv_full)$rep[1]  
 
-plot(dat_surv2$copper_ug_per_l, dat_surv2$mean_value_prop, xlab="Lead", ylab="Proportion of Larvae Survived", ylim=c(0, 1))
+plot(dat_surv2$copper_ug_per_l, dat_surv2$mean_value_prop, xlab="Lead", ylab="", col = "dodgerblue", pch=16, las=1,ylim=c(0, 1))
 lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
 lines(ss, inv.logit(newdat$success-2*sqrt(pvar1)), lty=2)
 lines(ss, inv.logit(newdat$success+2*sqrt(pvar1)), lty=2)
