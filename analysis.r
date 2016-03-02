@@ -17,20 +17,28 @@ source("R/data_prep.R")
 dat_fert <- dat[dat$life.stage == "fertilisation",]
 dat_fert$rep <- 1:nrow(dat_fert)
 
-par(mfrow=c(2,5))
+pdf("figures/figure_S1.pdf", 4.5, 10)
+
+par(mfrow=c(5,2), oma=c(0, 2, 0, 0), mar=c(5, 4, 1, 1))
 
 #sediment
 mod_fert <- glm(cbind(success, failure) ~ sediment_mg_per_l, family=binomial, data=dat_fert)
 plot(mean_value_prop ~ sediment_mg_per_l, col = "dodgerblue", xlab = "Sediment (mg/L)", ylab = "",  pch=16, las=1, data=dat_fert)
 ss <- sort(dat_fert$sediment_mg_per_l)
-lines(ss, predict(mod_fert, list(sediment_mg_per_l = ss), type="response"), lwd = 1)
+# lines(ss, predict(mod_fert, list(sediment_mg_per_l = ss), type="response"), lwd = 1)
+pred_fert <- predict(mod_fert, list(sediment_mg_per_l = ss), type="response", se.fit = TRUE)
+lines(ss, pred_fert$fit)
+# polygon(c(ss, rev(ss)), c(pred_fert$fit + pred_fert$se.fit, rev(pred_fert$fit - pred_fert$se.fit)), col=rgb(0,0,1,1), border=NA)
 
 #ammonium
 mod_fert <- glm(cbind(success, failure) ~ ammonium_microM, family=binomial, data=dat_fert)
 summary(mod_fert)
 plot(mean_value_prop ~ ammonium_microM, col = "dodgerblue", xlab = "Ammonium (µM)", ylab = "",  pch=16, data=dat_fert)
 ss <- sort(dat_fert$ammonium_microM)
-lines(ss, predict(mod_fert, list(ammonium_microM = ss), type="response"))
+# lines(ss, predict(mod_fert, list(ammonium_microM = ss), type="response"))
+pred_fert <- predict(mod_fert, list(ammonium_microM = ss), type="response", se.fit = TRUE)
+lines(ss, pred_fert$fit)
+# polygon(c(ss, rev(ss)), c(pred_fert$fit + pred_fert$se.fit, rev(pred_fert$fit - pred_fert$se.fit)), col=rgb(0,0,1,0.3), border=NA)
 
 #phosphate
 mod_fert <- glm(cbind(success, failure) ~ phosphorous_microM, family=binomial, data=dat_fert)
@@ -60,8 +68,11 @@ mod_fert <- glm(cbind(success, failure) ~ cadmium_ug_per_l, family=binomial, dat
 summary(mod_fert)
 plot(mean_value_prop ~ cadmium_ug_per_l, col = "dodgerblue", xlab = "Cadmium (µg/L)", ylab = "",  pch=16, las=1, data=dat_fert)
 ss <- sort(dat_fert$cadmium_ug_per_l)
-lines(ss, predict(mod_fert, list(cadmium_ug_per_l = ss), type="response"))
-    
+pred_fert <- predict(mod_fert, list(cadmium_ug_per_l = ss), type="response", se.fit = TRUE)
+lines(ss, pred_fert$fit)
+# polygon(c(ss, rev(ss)), c(pred_fert$fit + pred_fert$se.fit, rev(pred_fert$fit - pred_fert$se.fit)), col=rgb(0,0,1,0.3), border=NA)
+
+  
 #nitrate_microM - REMOVE
 mod_fert <- glm(cbind(success, failure) ~ nitrate_microM, family=binomial, data=dat_fert)
 summary(mod_fert)
@@ -87,12 +98,15 @@ drop1(mod_fert, test="Chisq")
 #tempertaure - REMOVE not enough data
 mod_fert <- glm(cbind(success, failure) ~ tempertaure_degrees_celcius + tempertaure_degrees_celcius_sq, family=binomial, data=dat_fert)
 summary(mod_fert)
-plot(mean_value_prop ~ tempertaure_degrees_celcius, col = "dodgerblue", xlab = "Temperature (C)", ylab = "",  pch=16, las=1, data=dat_fert)
+plot(mean_value_prop ~ tempertaure_degrees_celcius, col = "dodgerblue", xlab = "Temperature (deg C)", ylab = "",  pch=16, las=1, data=dat_fert)
 ss <- sort(dat_fert$tempertaure_degrees_celcius)
 lines(ss, predict(mod_fert, list(tempertaure_degrees_celcius = ss, tempertaure_degrees_celcius_sq = ss^2), type="response"))
 
 title(ylab = "Some Values", outer = TRUE, line = 3)
 
+mtext("Proportion fertilized", 2, line=0, outer=TRUE)
+
+dev.off()
 
 ## FULL MODEL
 dat_fert2 <- dat_fert[c("success", "failure", "sediment_mg_per_l", "ammonium_microM", "phosphorous_microM", "copper_ug_per_l", "salinity_psu", "salinity_psu_sq", "experiment", "mean_value_prop", "spawn.brood")]
@@ -123,7 +137,10 @@ sum(residuals(mod_fert_full, type="pearson")^2)/df.residual(mod_fert_full)
 drop1(mod_fert_full, test="Chisq")
 
 ##PLOTS FOR FERTILISATION##
-par(mfrow=c(3,2))
+
+pdf("figures/figure_1.pdf", 5.5, 8)
+
+par(mfrow=c(3,2), oma=c(0,2,0,0), mar=c(4, 4, 2, 1))
 
 # COPPER
 ss <- seq(min(dat_fert2$copper_ug_per_l), max(dat_fert2$copper_ug_per_l), 0.05)
@@ -134,11 +151,16 @@ newdat$success <- mm %*% fixef(mod_fert_full)
 pvar1 <- diag(mm %*% tcrossprod(vcov(mod_fert_full),mm))
 tvar1 <- pvar1 + VarCorr(mod_fert_full)$experiment[1] + VarCorr(mod_fert_full)$rep[1]  ## must be adapted for more complex models
 
-plot(dat_fert2$copper_ug_per_l, dat_fert2$mean_value_prop, xlab="Copper", ylab="Proportion of Larvae Fertilised", ylim=c(0, 1))
+plot(dat_fert2$copper_ug_per_l, dat_fert2$mean_value_prop, xlab="Copper", ylab="", ylim=c(0, 1), axes=FALSE)
+axis(1)
+axis(2, las=2)
 lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
 # "CI based on fixed-effects uncertainty ONLY"
-lines(ss, inv.logit(newdat$success-2*sqrt(pvar1)), lty=2)
-lines(ss, inv.logit(newdat$success+2*sqrt(pvar1)), lty=2)
+polygon(c(ss, rev(ss)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit(newdat$success-2*sqrt(pvar1)))), col=rgb(0,0,0,0.2), border=NA)
+mtext("A", side=3, line=0, adj=0, cex=1.2)
+
+# lines(ss, inv.logit(newdat$success-2*sqrt(pvar1)), lty=2)
+# lines(ss, inv.logit(newdat$success+2*sqrt(pvar1)), lty=2)
 # "CI based on fixed-effects uncertainty + random-effects variance"
 # lines(ss, inv.logit(newdat$success-2*sqrt(tvar1)), col="red", lty=2)
 # lines(ss, inv.logit(newdat$success+2*sqrt(tvar1)), col="red", lty=2)
@@ -152,11 +174,14 @@ newdat$success <- mm %*% fixef(mod_fert_full)
 pvar1 <- diag(mm %*% tcrossprod(vcov(mod_fert_full),mm))
 tvar1 <- pvar1 + VarCorr(mod_fert_full)$experiment[1] + VarCorr(mod_fert_full)$rep[1]  ## must be adapted for more complex models
 
-plot(dat_fert2$sediment_mg_per_l, dat_fert2$mean_value_prop, xlab="Sediment", ylab="Proportion of Larvae Fertilised", ylim=c(0, 1))
+plot(dat_fert2$sediment_mg_per_l, dat_fert2$mean_value_prop, xlab="Sediment", ylab="", ylim=c(0, 1), axes=FALSE)
+axis(1)
+axis(2, las=2)
 lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
 # "CI based on fixed-effects uncertainty ONLY"
-lines(ss, inv.logit(newdat$success-2*sqrt(pvar1)), lty=2)
-lines(ss, inv.logit(newdat$success+2*sqrt(pvar1)), lty=2)
+polygon(c(ss, rev(ss)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit(newdat$success-2*sqrt(pvar1)))), col=rgb(0,0,0,0.2), border=NA)
+mtext("B", side=3, line=0, adj=0, cex=1.2)
+
 # "CI based on fixed-effects uncertainty + random-effects variance"
 # lines(ss, inv.logit(newdat$success-2*sqrt(tvar1)), col="red", lty=2)
 # lines(ss, inv.logit(newdat$success+2*sqrt(tvar1)), col="red", lty=2)
@@ -170,11 +195,13 @@ newdat$success <- mm %*% fixef(mod_fert_full)
 pvar1 <- diag(mm %*% tcrossprod(vcov(mod_fert_full),mm))
 tvar1 <- pvar1 + VarCorr(mod_fert_full)$experiment[1] + VarCorr(mod_fert_full)$rep[1]  ## must be adapted for more complex models
 
-plot(dat_fert2$ammonium_microM, dat_fert2$mean_value_prop, xlab="Ammonium", ylab="Proportion of Larvae Fertilised", ylim=c(0, 1))
+plot(dat_fert2$ammonium_microM, dat_fert2$mean_value_prop, xlab="Ammonium", ylab="", ylim=c(0, 1), axes=FALSE)
+axis(1)
+axis(2, las=2)
 lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
 # "CI based on fixed-effects uncertainty ONLY"
-lines(ss, inv.logit(newdat$success-2*sqrt(pvar1)), lty=2)
-lines(ss, inv.logit(newdat$success+2*sqrt(pvar1)), lty=2)
+polygon(c(ss, rev(ss)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit(newdat$success-2*sqrt(pvar1)))), col=rgb(0,0,0,0.2), border=NA)
+mtext("C", side=3, line=0, adj=0, cex=1.2)
 # "CI based on fixed-effects uncertainty + random-effects variance"
 # lines(ss, inv.logit(newdat$success-2*sqrt(tvar1)), col="red", lty=2)
 # lines(ss, inv.logit(newdat$success+2*sqrt(tvar1)), col="red", lty=2)
@@ -188,11 +215,13 @@ newdat$success <- mm %*% fixef(mod_fert_full)
 pvar1 <- diag(mm %*% tcrossprod(vcov(mod_fert_full),mm))
 tvar1 <- pvar1 + VarCorr(mod_fert_full)$experiment[1] + VarCorr(mod_fert_full)$rep[1]  ## must be adapted for more complex models
 
-plot(dat_fert2$phosphorous_microM, dat_fert2$mean_value_prop, xlab="Phosphorous", ylab="Proportion of Larvae Fertilised", ylim=c(0, 1))
+plot(dat_fert2$phosphorous_microM, dat_fert2$mean_value_prop, xlab="Phosphorous", ylab="", ylim=c(0, 1), axes=FALSE)
+axis(1)
+axis(2, las=2)
 lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
 # "CI based on fixed-effects uncertainty ONLY"
-lines(ss, inv.logit(newdat$success-2*sqrt(pvar1)), lty=2)
-lines(ss, inv.logit(newdat$success+2*sqrt(pvar1)), lty=2)
+polygon(c(ss, rev(ss)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit(newdat$success-2*sqrt(pvar1)))), col=rgb(0,0,0,0.2), border=NA)
+mtext("D", side=3, line=0, adj=0, cex=1.2)
 # "CI based on fixed-effects uncertainty + random-effects variance"
 # lines(ss, inv.logit(newdat$success-2*sqrt(tvar1)), col="red", lty=2)
 # lines(ss, inv.logit(newdat$success+2*sqrt(tvar1)), col="red", lty=2)
@@ -207,15 +236,20 @@ newdat$success <- mm %*% fixef(mod_fert_full)
 pvar1 <- diag(mm %*% tcrossprod(vcov(mod_fert_full),mm))
 tvar1 <- pvar1 + VarCorr(mod_fert_full)$experiment[1] + VarCorr(mod_fert_full)$rep[1]  ## must be adapted for more complex models
 
-plot(dat_fert2$salinity_psu, dat_fert2$mean_value_prop, xlab="Salinity", ylab="Proportion of Larvae Fertilised", ylim=c(0, 1))
+plot(dat_fert2$salinity_psu, dat_fert2$mean_value_prop, xlab="Salinity", ylab="", ylim=c(0, 1), axes=FALSE)
+axis(1)
+axis(2, las=2)
 lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
 # "CI based on fixed-effects uncertainty ONLY"
-lines(ss, inv.logit(newdat$success-2*sqrt(pvar1)), lty=2)
-lines(ss, inv.logit(newdat$success+2*sqrt(pvar1)), lty=2)
+polygon(c(ss, rev(ss)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit(newdat$success-2*sqrt(pvar1)))), col=rgb(0,0,0,0.2), border=NA)
+mtext("E", side=3, line=0, adj=0, cex=1.2)
 # "CI based on fixed-effects uncertainty + random-effects variance"
 # lines(ss, inv.logit(newdat$success-2*sqrt(tvar1)), col="red", lty=2)
 # lines(ss, inv.logit(newdat$success+2*sqrt(tvar1)), col="red", lty=2)
 
+mtext("Proportion fertilized", 2, line=0, outer=TRUE)
+
+dev.off()
 
 ##################
 ##SURVIVAL MODEL##
@@ -398,17 +432,22 @@ lines(ss, inv.logit(newdat$success+2*sqrt(pvar1)), lty=2)
 
 par(mfrow=c(1,2))
 
-dat_fert = dat[apply(!is.na(dat[, -1]), 1, sum) > 0 & dat$life.stage == "fertilisation",]
-dat_surv = dat[apply(!is.na(dat[, -1]), 1, sum) > 0 & dat$life.stage == "survivorship",]
+factors <- dat[dat$life.stage == "fertilisation",c(42,17,12,14,15,21)]
+colnames(factors) <- c("Prop", "Copper", "Sediment","Ammonium", "Phosphate", "Salinity") 
 
-factors <- data_fert[, c(17,12,14,15,21)]
-colnames(factors) <- c("Copper", "Sediment","Ammonium", "Phosphate", "Salinity") 
-hier.part(data_fert$mean_value_prop, factors, family = "binomial", gof = "logLik", barplot = TRUE)
+fert_prop <- factors[apply(!is.na(factors[, -1]), 1, sum) > 0,]$Prop
+factors <- factors[apply(!is.na(factors[, -1]), 1, sum) > 0,-1]
+
+hier.part(round(fert_prop), factors, family = "binomial", gof = "logLik", barplot = TRUE)
+
+glm(fert_prop ~ factors[,1] + factors[,2], family=binomial)
 
 
-factors <- data_surv[, c(17,27,21)]
+
+
+factors <- dat_surv[, c(17,27,21)]
 colnames(factors) <- c("Copper", "Lead", "Salinity" ) 
-hier.part(data_surv$mean_value_prop, factors, family = "binomial", gof = "logLik", barplot = TRUE)
+hier.part(dat_surv$mean_value_prop, factors, family = "binomial", gof = "logLik", barplot = TRUE)
 
 
 
