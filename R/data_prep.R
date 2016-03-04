@@ -31,18 +31,18 @@ dat$nitrate_microM[is.na(dat$nitrate_microM)] <- 0.254
 dat$lead_ug_per_l[is.na(dat$lead_ug_per_l)] <- 0.03
 dat$nickel_ug_per_l[is.na(dat$nickel_ug_per_l)] <- 6.6
 
-# Log10 continuous variables based on histograms above. Salinity, Temperature and pH not log-transformed
-dat$sediment_mg_per_l <- log10(dat$sediment_mg_per_l)
-dat$ammonium_microM <- log10(dat$ammonium_microM)
-dat$phosphorous_microM <- log10(dat$phosphorous_microM)
-dat$copper_ug_per_l <- log10(dat$copper_ug_per_l)
-dat$mercury_ug._per_l <- log10(dat$mercury_ug._per_l)
-dat$tributyltin_ug_per_l <- log10(dat$tributyltin_ug_per_l)
-dat$zinc_ug_per_l <- log10(dat$zinc_ug_per_l)
-dat$cadmium_ug_per_l <- log10(dat$cadmium_ug_per_l)
-dat$nitrate_microM <- log10(dat$nitrate_microM)
-dat$lead_ug_per_l <- log10(dat$lead_ug_per_l)
-dat$nickel_ug_per_l <- log10(dat$nickel_ug_per_l)
+# Log10 + 1 continuous variables based on histograms above. Salinity, Temperature and pH not log-transformed
+dat$sediment_mg_per_l <- log10(dat$sediment_mg_per_l + 1)
+dat$ammonium_microM <- log10(dat$ammonium_microM + 1)
+dat$phosphorous_microM <- log10(dat$phosphorous_microM + 1)
+dat$copper_ug_per_l <- log10(dat$copper_ug_per_l + 1)
+dat$mercury_ug._per_l <- log10(dat$mercury_ug._per_l + 1)
+dat$tributyltin_ug_per_l <- log10(dat$tributyltin_ug_per_l + 1)
+dat$zinc_ug_per_l <- log10(dat$zinc_ug_per_l + 1)
+dat$cadmium_ug_per_l <- log10(dat$cadmium_ug_per_l + 1)
+dat$nitrate_microM <- log10(dat$nitrate_microM + 1)
+dat$lead_ug_per_l <- log10(dat$lead_ug_per_l +1 )
+dat$nickel_ug_per_l <- log10(dat$nickel_ug_per_l + 1)
 
 #where there is no salinity we're making it 35
 dat$salinity_psu[is.na(dat$salinity_psu)] <- 35

@@ -96,7 +96,7 @@ plot(mean_value_prop ~ tempertaure_degrees_celcius, col = "dodgerblue", xlab = "
 ss <- sort(dat_fert$tempertaure_degrees_celcius)
 lines(ss, predict(mod_fert, list(tempertaure_degrees_celcius = ss, tempertaure_degrees_celcius_sq = ss^2), type="response"))
 
-mtext("Proportion fertilized", 2, line=0, outer=TRUE)
+mtext("Proportion fertilised", 2, line=0, outer=TRUE)
 
 dev.off()
 
@@ -174,6 +174,7 @@ axis(1)
 axis(2, las=2)
 lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
 polygon(c(ss, rev(ss)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit(newdat$success-2*sqrt(pvar1)))), col=rgb(0,0,0,0.2), border=NA)
+mtext("C", side=3, line=0, adj=0, cex=1.2)
 
 # PHOSPHOROUS
 ss <- seq(min(dat_fert2$phosphorous_microM), max(dat_fert2$phosphorous_microM), 0.05)
@@ -217,56 +218,65 @@ dev.off()
 dat_surv <- dat[dat$life.stage == "survivorship",]
 dat_surv$rep <- 1:nrow(dat_surv)
 
-par(mfrow=c(1,1))
+pdf("figures/figure_S2.pdf", 4.5, 10)
+
+par(mfrow=c(4,2), oma=c(0, 2, 0, 0), mar=c(5, 4, 1, 1))
 
 #ammonium - few points
 mod_surv <- glm(cbind(success, failure) ~ ammonium_microM, family=binomial, data=dat_surv)
-summary(mod_surv)
-plot(mean_value_prop ~ ammonium_microM,  col = "dodgerblue", xlab = "Ammonium (µM)", ylab = "",  pch=16, las=0, data=dat_surv)
+plot(mean_value_prop ~ ammonium_microM,  col = "dodgerblue", xlab = "Ammonium (µM)", ylab = "",  pch=16, las=1, data=dat_surv)
 ss <- sort(dat_surv$ammonium_microM)
-lines(ss, predict(mod_surv, list(ammonium_microM = ss), type="response"))
+pred_surv <- predict(mod_surv, list(ammonium_microM = ss), type="response", se.fit = TRUE)
+lines(ss, pred_surv$fit)
 
 #copper
 mod_surv <- glm(cbind(success, failure) ~ copper_ug_per_l, family=binomial, data=dat_surv)
-summary(mod_surv)
 plot(mean_value_prop ~ copper_ug_per_l,  col = "dodgerblue", xlab = "Copper (µg/L)", ylab = "",  pch=16, las=1, data=dat_surv)
 ss <- sort(dat_surv$copper_ug_per_l)
-lines(ss, predict(mod_surv, list(copper_ug_per_l = ss), type="response"))
+pred_surv <- predict(mod_surv, list(copper_ug_per_l = ss), type="response", se.fit = TRUE)
+lines(ss, pred_surv$fit)
 
 # mercury- REMOVE
 mod_surv <- glm(cbind(success, failure) ~ mercury_ug._per_l, family=binomial, data=dat_surv)
-summary(mod_surv)
 plot(mean_value_prop ~ mercury_ug._per_l,  col = "dodgerblue", xlab = "Mercury (µg/L)", ylab = "",  pch=16, las=1, data=dat_surv)
 ss <- sort(dat_surv$mercury_ug._per_l)
-lines(ss, predict(mod_surv, list(mercury_ug._per_l = ss), type="response"))
+pred_surv <- predict(mod_surv, list(mercury_ug._per_l = ss), type="response", se.fit = TRUE)
+lines(ss, pred_surv$fit)
 
 # lead
 mod_surv <- glm(cbind(success, failure) ~ lead_ug_per_l, family=binomial, data=dat_surv)
-summary(mod_surv)
 plot(mean_value_prop ~ lead_ug_per_l,  col = "dodgerblue", xlab = "Lead (µg/L)", ylab = "",  pch=16, las=1, data=dat_surv)
 ss <- sort(dat_surv$lead_ug_per_l)
-lines(ss, predict(mod_surv, list(lead_ug_per_l = ss), type="response"))
+pred_surv <- predict(mod_surv, list(lead_ug_per_l = ss), type="response", se.fit = TRUE)
+lines(ss, pred_surv$fit)
 
 #salinity - REMOVE
-mod_surv2 <- glm(cbind(success, failure) ~ salinity_psu, family=binomial, data=dat_surv)
+mod_surv <- glm(cbind(success, failure) ~ salinity_psu, family=binomial, data=dat_surv)
 plot(mean_value_prop ~ salinity_psu, col = "dodgerblue", xlab = "Salinity (psu)", ylab = "",  pch=16, las=1, data=dat_surv)
 ss <- sort(dat_surv$salinity_psu)
-lines(ss, predict(mod_surv2, list(salinity_psu = ss), type="response"))
+pred_surv <- predict(mod_surv, list(salinity_psu = ss), type="response", se.fit = TRUE)
+lines(ss, pred_surv$fit)
 
 # acidification - VERY WEAK
 mod_surv <- glm(cbind(success, failure) ~ acidification_pH, family=binomial, data=dat_surv)
 summary(mod_surv)
 plot(mean_value_prop ~ acidification_pH,  col = "dodgerblue", xlab = "Acidification (pH)", ylab = "",  pch=16, las=1, data=dat_surv)
 ss <- sort(dat_surv$acidification_pH)
-lines(ss, predict(mod_surv2, list(acidification_pH = ss), type="response"))
+pred_surv <- predict(mod_surv, list(acidification_pH = ss), type="response", se.fit = TRUE)
+lines(ss, pred_surv$fit)
 
 # temperature
-mod_surv <- glm(cbind(success, failure) ~ tempertaure_degrees_celcius + tempertaure_degrees_celcius_sq, family=binomial, data=dat_surv)
+mod_surv <- glm(cbind(success, failure) ~ tempertaure_degrees_celcius, family=binomial, data=dat_surv)
 summary(mod_surv)
 plot(mean_value_prop ~ tempertaure_degrees_celcius,  col = "dodgerblue", xlab = "Temperature (deg C)", ylab = "",  pch=16, las=1, data=dat_surv)
 ss <- sort(dat_surv$tempertaure_degrees_celcius)
-lines(ss, predict(mod_surv, list(tempertaure_degrees_celcius = ss, tempertaure_degrees_celcius_sq = ss^2), type="response"))
+pred_surv <- predict(mod_surv, list(tempertaure_degrees_celcius = ss), type="response", se.fit = TRUE)
+lines(ss, pred_surv$fit)
 
+
+mtext("Proportion survived", 2, line=0, outer=TRUE)
+
+dev.off()
 
 
 ##FULL MODEL##   
@@ -308,8 +318,11 @@ drop1(mod_surv_full, test="Chisq")
 
 
 ##PLOTS FOR SURVIVAL##
-par(mfrow=c(2,3))
-    
+
+pdf("figures/figure_2.pdf", 5.5, 8)
+
+par(mfrow=c(3,1), oma=c(0,2,0,0), mar=c(5, 4, 2, 1))
+
 # COPPER
 ss <- seq(min(dat_surv2$copper_ug_per_l), max(dat_surv2$copper_ug_per_l), 0.05)
 newdat <- expand.grid(copper_ug_per_l = ss, lead_ug_per_l=log10(0.03), salinity_psu = 34, success=0, failure=0)
@@ -318,10 +331,12 @@ newdat$success <- mm %*% fixef(mod_surv_full)
 pvar1 <- diag(mm %*% tcrossprod(vcov(mod_surv_full),mm))
 tvar1 <- pvar1 + VarCorr(mod_surv_full)$experiment[1] + VarCorr(mod_surv_full)$rep[1]  
 
-plot(dat_surv2$copper_ug_per_l, dat_surv2$mean_value_prop, col = "dodgerblue", xlab="Copper", ylab="", pch=16, las=1, ylim=c(0, 1))
+plot(dat_surv2$copper_ug_per_l, dat_surv2$mean_value_prop, xlab="Copper (µg/L)", ylab="", ylim=c(0, 1),  axes=FALSE)
+axis(1)
+axis(2)
 lines(ss, inv.logit(newdat$success), lwd=1, lty=1)
-lines(ss, inv.logit(newdat$success-2*sqrt(pvar1)), lty=2)
-lines(ss, inv.logit(newdat$success+2*sqrt(pvar1)), lty=2)
+polygon(c(ss, rev(ss)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit(newdat$success-2*sqrt(pvar1)))), col=rgb(0,0,0,0.2), border=NA)
+mtext("A", side=3, line=0, adj=0, cex=1.2)
 
 # LEAD
 ss <- seq(min(dat_surv2$lead_ug_per_l), max(dat_surv2$lead_ug_per_l), 0.05)
@@ -331,10 +346,12 @@ newdat$success <- mm %*% fixef(mod_surv_full)
 pvar1 <- diag(mm %*% tcrossprod(vcov(mod_surv_full),mm))
 tvar1 <- pvar1 + VarCorr(mod_surv_full)$experiment[1] + VarCorr(mod_surv_full)$rep[1]  
 
-plot(dat_surv2$copper_ug_per_l, dat_surv2$mean_value_prop, xlab="Lead", ylab="", col = "dodgerblue", pch=16, las=1,ylim=c(0, 1))
+plot(dat_surv2$copper_ug_per_l, dat_surv2$mean_value_prop, xlab="Lead (µg/L)", ylab="", ylim=c(0, 1), axes=FALSE)
+axis(1)
+axis(2)
 lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
-lines(ss, inv.logit(newdat$success-2*sqrt(pvar1)), lty=2)
-lines(ss, inv.logit(newdat$success+2*sqrt(pvar1)), lty=2)
+polygon(c(ss, rev(ss)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit(newdat$success-2*sqrt(pvar1)))), col=rgb(0,0,0,0.2), border=NA)
+mtext("B", side=3, line=0, adj=0, cex=1.2)
 
 #SALINITY
 ss <- seq(min(dat_surv2$salinity_psu), max(dat_surv2$salinity_psu), 0.2)
@@ -344,17 +361,26 @@ newdat$success <- mm %*% fixef(mod_surv_full)
 pvar1 <- diag(mm %*% tcrossprod(vcov(mod_surv_full),mm))
 tvar1 <- pvar1 + VarCorr(mod_surv_full)$experiment[1] + VarCorr(mod_surv_full)$rep[1] 
 
-plot(dat_fert2$salinity_psu, dat_fert2$mean_value_prop, xlab="Temperature", ylab="Proportion of Larvae Fertilised", ylim=c(0, 1))
-lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
-lines(ss, inv.logit(newdat$success-2*sqrt(pvar1)), lty=2)
-lines(ss, inv.logit(newdat$success+2*sqrt(pvar1)), lty=2)
+plot(dat_fert2$salinity_psu, dat_fert2$mean_value_prop, xlab="Salinity (psu)", ylab="", ylim=c(0, 1), axes=FALSE)
+axis(1)
+axis(2)
+lines(ss, inv.logit(newdat$success), lwd=1, lty=1) 
+polygon(c(ss, rev(ss)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit(newdat$success-2*sqrt(pvar1)))), col=rgb(0,0,0,0.2), border=NA)
+mtext("C", side=3, line=0, adj=0, cex=1.2)
+
+
+mtext("Proportion survived", 2, line=0, outer=TRUE)
+
+dev.off()
 
 
 ###################
 #VARIANCE ANALYSIS#
 ###################
 
-par(mfrow=c(1,2))
+pdf("figures/figure_3.pdf", 5.5, 8)
+
+par(mfrow=c(2,1), oma=c(0,2,0,0), mar=c(4, 2, 2, 1))
 
 #dat_fert = dat[apply(!is.na(dat[, -1]), 1, sum) > 0 & dat$life.stage == "fertilisation",]
 #dat_surv = dat[apply(!is.na(dat[, -1]), 1, sum) > 0 & dat$life.stage == "survivorship",]
@@ -367,12 +393,16 @@ factors <- dat_surv[, c(17,27,21)]
 colnames(factors) <- c("Copper", "Lead", "Salinity") 
 hier.part(dat_surv$mean_value_prop, factors, family = "binomial", gof = "logLik", barplot = TRUE)
 
+dev.off()
 
 ###########################
 ##LOCATIONS/WATER SAMPLES##
 ############################
 
 ##Fertilisation Model##
+pdf("figures/figure_4.pdf", 5.5, 8)
+par(mfrow=c(2,1), oma=c(0,2,0,0), mar=c(5, 5, 3, 1))
+
 water_fert <- data.frame(sediment_mg_per_l=log10(water$suspended_solids_mg.l), 
                          copper_ug_per_l=log10(water$copper_ug.l),
                          ammonium_microM=log10(water$ammonia_mg.l),
@@ -408,10 +438,14 @@ bp <- barplot(t(inv.logit(water_surv$success)), xlab="Location", ylab="Proportio
 #error bars
 arrows(bp, inv.logit(water_surv$success-2*sqrt(pvar1)), bp, inv.logit(water_surv$success+2*sqrt(pvar1)), code=3, angle=90)
 
+dev.off()
 
 ##################
 ##COMBINED MODEL##
 ##################
+
+pdf("figures/figure_5.pdf", 5.5, 8)
+par(mfrow=c(2,1), oma=c(0,2,0,0), mar=c(5, 5, 3, 1))
 
 combined_store <- c()
 
@@ -439,6 +473,4 @@ bp <- barplot(combined_store[,2], xlab="Location", ylab="Proportion of Succesful
 #error bars
 arrows(bp, combined_store[,3], bp, combined_store[,4], code=3, angle=90)
 
-
-inv.logit(p.fert$fit) * inv.logit(p.larv$fit)
-
+dev.off()
