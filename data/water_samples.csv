@@ -1,7 +1,7 @@
 sample,zinc_ug/l,nickel_ug/l,mercury_ug/l,copper_ug/l,lead_ug/l,cadmium_ug/l,phosphorus_mg/l,pH,nitrate_mg/l,ammonia_mg/l,salinity_g/l,suspended_solids_mg/l,turbidity_ntu,temperature_degrees_celcius,temperature_degrees_kelvin
 Chowder Bay,2,<1,<0.05,1,<1,<0.1,<0.25,8,<0.005,<0.005,29,17,1.4,24,297.15
 Mona Vale,<1,<1,<0.05,<1,<1,<0.1,<0.5,8.2,<0.005,<0.005,31,<5,0.6,24,297.15
-Lizard Island,1,<1,<0.05,<1,<1,<0.1,<0.05,7.2,<0.005,0.016,28,<5,<0.1,28,301.15
+Lizard Island,1,<1,<0.05,<1,<1,<0.1,<0.05,7.2,<0.005,0.016,32,<5,<0.1,28,301.15
 chowder_bay_f,6,<1,<0.05,3,<1,<0.1,<0.05,8,<0.005,0.011,31,<5,<0.1,,
 mona_vale_f,4,<1,<0.05,1,<1,<0.1,<0.05,8,<0.005,0.023,32,<5,0.1,,
 lizard_island_f,3,<1,<0.05,3,<1,<0.1,<0.05,7.6,<0.005,<0.005,27,<5,0.3,,

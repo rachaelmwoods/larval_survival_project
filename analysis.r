@@ -5,15 +5,13 @@ source("R/functions.R")
 
 # Load datasets
 dat <- read.csv("data/data_table_factors - data.csv", as.is=TRUE)
-water <- read.csv("data/water_samples.csv", as.is=TRUE)
 
-# Data preparation done in separate file
-source("R/data_prep.R")
+# change mean value fertilisation from percentage to proportion (for plotting)
+dat$mean_value_prop <- dat$mean_value/100
 
-
-#######################
-##FERTILISATION MODEL##
-#######################
+#########################
+## FERTILISATION MODEL ##
+#########################
 dat_fert <- dat[dat$life.stage == "fertilisation",]
 dat_fert$rep <- 1:nrow(dat_fert)
 
@@ -75,6 +73,8 @@ ss <- sort(dat_fert$nitrate_microM)
 lines(ss, predict(mod_fert, list(nitrate_microM = ss), type="response"))
 
 #salinity
+dat_fert$salinity_psu_sq <- dat_fert$salinity_psu^2
+
 mod_fert <- glm(cbind(success, failure) ~ salinity_psu + salinity_psu_sq, family=binomial, data=dat_fert)
 summary(mod_fert)
 plot(mean_value_prop ~ salinity_psu, col = "dodgerblue", xlab = "Salinity (psu)", ylab = "",  pch=16, las=1, data=dat_fert)
@@ -82,6 +82,7 @@ ss <- sort(dat_fert$salinity_psu)
 lines(ss, predict(mod_fert, list(salinity_psu = ss, salinity_psu_sq = ss^2), type="response"))
 
 #acidification - VERY WEAK RESPONSE
+dat_fert$acidification_pH_sq <- dat_fert$acidification_pH^2
 mod_fert <- glm(cbind(success, failure) ~ acidification_pH + acidification_pH_sq, family=binomial, data=dat_fert)
 summary(mod_fert)
 plot(mean_value_prop ~ acidification_pH, col = "dodgerblue", xlab = "Acidification (pH)", ylab = "",  pch=16, las=1, data=dat_fert)
@@ -90,6 +91,7 @@ lines(ss, predict(mod_fert, list(acidification_pH = ss, acidification_pH_sq = ss
 drop1(mod_fert, test="Chisq")
 
 #tempertaure - REMOVE not enough data
+dat_fert$tempertaure_degrees_celcius_sq <- dat_fert$tempertaure_degrees_celcius^2
 mod_fert <- glm(cbind(success, failure) ~ tempertaure_degrees_celcius + tempertaure_degrees_celcius_sq, family=binomial, data=dat_fert)
 summary(mod_fert)
 plot(mean_value_prop ~ tempertaure_degrees_celcius, col = "dodgerblue", xlab = "Temperature (deg C)", ylab = "",  pch=16, las=1, data=dat_fert)
@@ -100,117 +102,7 @@ mtext("Proportion fertilised", 2, line=0, outer=TRUE)
 
 dev.off()
 
-## FULL MODEL
-dat_fert2 <- dat_fert[c("success", "failure", "sediment_mg_per_l", "ammonium_microM", "phosphorous_microM", "copper_ug_per_l", "salinity_psu", "salinity_psu_sq", "experiment", "mean_value_prop", "spawn.brood")]
-dat_fert2 <- dat_fert2[!(is.na(dat_fert2$sediment_mg_per_l) & is.na(dat_fert2$ammonium_microM) & is.na(dat_fert2$phosphorous_microM) & is.na(dat_fert2$copper_ug_per_l) & is.na(dat_fert2$salinity_psu)),]
 
-dat_fert2$sediment_mg_per_l[is.na(dat_fert2$sediment_mg_per_l)] <- log10(1)
-dat_fert2$ammonium_microM[is.na(dat_fert2$ammonium_microM)] <- log10(0.01391)
-dat_fert2$phosphorous_microM[is.na(dat_fert2$phosphorous_microM)] <- log10(0.446)
-dat_fert2$copper_ug_per_l[is.na(dat_fert2$copper_ug_per_l)] <- log10(0.9)
-
-dat_fert2$salinity_psu[is.na(dat_fert2$salinity_psu)] <- 34
-dat_fert2$salinity_psu_sq <- dat_fert2$salinity_psu^2
-
-dat_fert2$rep <- 1:nrow(dat_fert2)
-
-##MODEL##
-mod_fert_full <- glm(cbind(success, failure) ~ sediment_mg_per_l + ammonium_microM + phosphorous_microM + copper_ug_per_l + salinity_psu + salinity_psu_sq, family=binomial, data=dat_fert2)
-summary(mod_fert_full)
-drop1(mod_fert_full, test="Chisq")
-
-mod_fert_full <- glmer(cbind(success, failure) ~ sediment_mg_per_l + ammonium_microM + phosphorous_microM + copper_ug_per_l + salinity_psu + salinity_psu_sq + (1 | experiment) + (1 | rep), family=binomial, data=dat_fert2, control=glmerControl(optimizer="bobyqa", optCtrl=list(maxfun=2e4)))
-summary(mod_fert_full)
-
-sum(residuals(mod_fert_full, type="pearson")^2)/df.residual(mod_fert_full)
-drop1(mod_fert_full, test="Chisq")
-
-##PLOTS FOR FERTILISATION##
-
-pdf("figures/figure_1.pdf", 5.5, 8)
-
-par(mfrow=c(3,2), oma=c(0,2,0,0), mar=c(4, 4, 2, 1))
-
-# COPPER
-ss <- seq(min(dat_fert2$copper_ug_per_l), max(dat_fert2$copper_ug_per_l), 0.05)
-newdat <- expand.grid(sediment_mg_per_l=log10(1), ammonium_microM=log10(0.01391), phosphorous_microM=log10(0.446), copper_ug_per_l = ss, salinity_psu = 34, salinity_psu_sq = 34^2, success=0, failure=0)
-mm <- model.matrix(terms(mod_fert_full), newdat)
-newdat$success <- mm %*% fixef(mod_fert_full)
-pvar1 <- diag(mm %*% tcrossprod(vcov(mod_fert_full),mm))
-tvar1 <- pvar1 + VarCorr(mod_fert_full)$experiment[1] + VarCorr(mod_fert_full)$rep[1]  
-
-plot(dat_fert2$copper_ug_per_l, dat_fert2$mean_value_prop, xlab="Copper (痢/L)", ylab="", ylim=c(0, 1), axes=FALSE)
-axis(1)
-axis(2, las=2)
-lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
-polygon(c(ss, rev(ss)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit(newdat$success-2*sqrt(pvar1)))), col=rgb(0,0,0,0.2), border=NA)
-mtext("A", side=3, line=0, adj=0, cex=1.2)
-
-# SEDIMENT
-ss <- seq(min(dat_fert2$sediment_mg_per_l), max(dat_fert2$sediment_mg_per_l), 0.01)
-newdat <- expand.grid(sediment_mg_per_l=ss, ammonium_microM=log10(0.01391), phosphorous_microM=log10(0.446), copper_ug_per_l = log10(0.9), salinity_psu = 34, salinity_psu_sq = 34^2, success=0, failure=0)
-mm <- model.matrix(terms(mod_fert_full),newdat)
-newdat$success <- mm %*% fixef(mod_fert_full)
-pvar1 <- diag(mm %*% tcrossprod(vcov(mod_fert_full),mm))
-tvar1 <- pvar1 + VarCorr(mod_fert_full)$experiment[1] + VarCorr(mod_fert_full)$rep[1]  
-
-plot(dat_fert2$sediment_mg_per_l, dat_fert2$mean_value_prop, xlab="Sediment (mg/L)", ylab="", ylim=c(0, 1), axes=FALSE)
-axis(1)
-axis(2, las=2)
-lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
-polygon(c(ss, rev(ss)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit(newdat$success-2*sqrt(pvar1)))), col=rgb(0,0,0,0.2), border=NA)
-mtext("B", side=3, line=0, adj=0, cex=1.2)
-
-# AMMONIUM
-ss <- seq(min(dat_fert2$ammonium_microM), max(dat_fert2$ammonium_microM), 0.05)
-newdat <- expand.grid(sediment_mg_per_l=log10(1), ammonium_microM=ss, phosphorous_microM=log10(0.446), copper_ug_per_l = log10(0.9), salinity_psu = 34, salinity_psu_sq = 34^2, success=0, failure=0)
-mm <- model.matrix(terms(mod_fert_full),newdat)
-newdat$success <- mm %*% fixef(mod_fert_full)
-pvar1 <- diag(mm %*% tcrossprod(vcov(mod_fert_full),mm))
-tvar1 <- pvar1 + VarCorr(mod_fert_full)$experiment[1] + VarCorr(mod_fert_full)$rep[1]  
-
-plot(dat_fert2$ammonium_microM, dat_fert2$mean_value_prop, xlab="Ammonium (然)", ylab="", ylim=c(0, 1), axes=FALSE)
-axis(1)
-axis(2, las=2)
-lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
-polygon(c(ss, rev(ss)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit(newdat$success-2*sqrt(pvar1)))), col=rgb(0,0,0,0.2), border=NA)
-mtext("C", side=3, line=0, adj=0, cex=1.2)
-
-# PHOSPHOROUS
-ss <- seq(min(dat_fert2$phosphorous_microM), max(dat_fert2$phosphorous_microM), 0.05)
-newdat <- expand.grid(sediment_mg_per_l=log10(1), ammonium_microM=log10(0.01391), phosphorous_microM=ss, copper_ug_per_l = log10(0.9), salinity_psu = 34, salinity_psu_sq = 34^2, success=0, failure=0)
-mm <- model.matrix(terms(mod_fert_full),newdat)
-newdat$success <- mm %*% fixef(mod_fert_full)
-pvar1 <- diag(mm %*% tcrossprod(vcov(mod_fert_full),mm))
-tvar1 <- pvar1 + VarCorr(mod_fert_full)$experiment[1] + VarCorr(mod_fert_full)$rep[1] 
-
-plot(dat_fert2$phosphorous_microM, dat_fert2$mean_value_prop, xlab="Phosphorous (然)", ylab="", ylim=c(0, 1), axes=FALSE)
-axis(1)
-axis(2, las=2)
-lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
-polygon(c(ss, rev(ss)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit(newdat$success-2*sqrt(pvar1)))), col=rgb(0,0,0,0.2), border=NA)
-mtext("D", side=3, line=0, adj=0, cex=1.2)
-
-# SALINITY
-ss <- seq(min(dat_fert2$salinity_psu), max(dat_fert2$salinity_psu), 0.1)
-newdat <- expand.grid(sediment_mg_per_l=log10(1), ammonium_microM=log10(0.01391), phosphorous_microM=log10(0.446), copper_ug_per_l = log10(0.9), salinity_psu = ss, salinity_psu_sq = 0, success=0, failure=0)
-newdat$salinity_psu_sq = newdat$salinity_psu^2
-mm <- model.matrix(terms(mod_fert_full),newdat)
-newdat$success <- mm %*% fixef(mod_fert_full)
-pvar1 <- diag(mm %*% tcrossprod(vcov(mod_fert_full),mm))
-tvar1 <- pvar1 + VarCorr(mod_fert_full)$experiment[1] + VarCorr(mod_fert_full)$rep[1] 
-
-plot(dat_fert2$salinity_psu, dat_fert2$mean_value_prop, xlab="Salinity (psu)", ylab="", ylim=c(0, 1), axes=FALSE)
-axis(1)
-axis(2, las=2)
-lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
-polygon(c(ss, rev(ss)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit(newdat$success-2*sqrt(pvar1)))), col=rgb(0,0,0,0.2), border=NA)
-mtext("E", side=3, line=0, adj=0, cex=1.2)
-
-
-mtext("Proportion fertilised", 2, line=0, outer=TRUE)
-
-dev.off()
 
 ##################
 ##SURVIVAL MODEL##
@@ -250,27 +142,35 @@ ss <- sort(dat_surv$lead_ug_per_l)
 pred_surv <- predict(mod_surv, list(lead_ug_per_l = ss), type="response", se.fit = TRUE)
 lines(ss, pred_surv$fit)
 
-#salinity - REMOVE
-mod_surv <- glm(cbind(success, failure) ~ salinity_psu, family=binomial, data=dat_surv)
+#salinity - REMOVE - 
+dat_surv$salinity_psu_sq <- dat_surv$salinity_psu^2
+mod_surv <- glm(cbind(success, failure) ~ salinity_psu + salinity_psu_sq, family=binomial, data=dat_surv)
 plot(mean_value_prop ~ salinity_psu, col = "dodgerblue", xlab = "Salinity (psu)", ylab = "",  pch=16, las=1, data=dat_surv)
 ss <- sort(dat_surv$salinity_psu)
-pred_surv <- predict(mod_surv, list(salinity_psu = ss), type="response", se.fit = TRUE)
+pred_surv <- predict(mod_surv, list(salinity_psu = ss, salinity_psu_sq = ss^2), type="response", se.fit = TRUE)
 lines(ss, pred_surv$fit)
+drop1(mod_surv, test="Chisq")
+
+mod_surv <- glm(cbind(success, failure) ~ salinity_psu, family=binomial, data=dat_surv)
+
 
 # acidification - VERY WEAK
-mod_surv <- glm(cbind(success, failure) ~ acidification_pH, family=binomial, data=dat_surv)
+dat_surv$acidification_pH_sq <- dat_surv$acidification_pH^2
+mod_surv <- glm(cbind(success, failure) ~ acidification_pH + acidification_pH_sq, family=binomial, data=dat_surv)
 summary(mod_surv)
 plot(mean_value_prop ~ acidification_pH,  col = "dodgerblue", xlab = "Acidification (pH)", ylab = "",  pch=16, las=1, data=dat_surv)
 ss <- sort(dat_surv$acidification_pH)
-pred_surv <- predict(mod_surv, list(acidification_pH = ss), type="response", se.fit = TRUE)
+pred_surv <- predict(mod_surv, list(acidification_pH = ss, acidification_pH_sq= ss^2), type="response", se.fit = TRUE)
 lines(ss, pred_surv$fit)
+drop1(mod_surv, test="Chisq")
 
 # temperature
-mod_surv <- glm(cbind(success, failure) ~ tempertaure_degrees_celcius, family=binomial, data=dat_surv)
+dat_surv$tempertaure_degrees_celcius_sq <- dat_surv$tempertaure_degrees_celcius^2
+mod_surv <- glm(cbind(success, failure) ~ tempertaure_degrees_celcius + tempertaure_degrees_celcius_sq, family=binomial, data=dat_surv)
 summary(mod_surv)
 plot(mean_value_prop ~ tempertaure_degrees_celcius,  col = "dodgerblue", xlab = "Temperature (deg C)", ylab = "",  pch=16, las=1, data=dat_surv)
 ss <- sort(dat_surv$tempertaure_degrees_celcius)
-pred_surv <- predict(mod_surv, list(tempertaure_degrees_celcius = ss), type="response", se.fit = TRUE)
+pred_surv <- predict(mod_surv, list(tempertaure_degrees_celcius = ss, tempertaure_degrees_celcius_sq = ss^2), type="response", se.fit = TRUE)
 lines(ss, pred_surv$fit)
 
 
@@ -279,31 +179,199 @@ mtext("Proportion survived", 2, line=0, outer=TRUE)
 dev.off()
 
 
+
+############################
+## FULL MODEL FERTILISATION
+##############################
+
+# Load datasets
+dat <- read.csv("data/data_table_factors - data.csv", as.is=TRUE)
+
+dat$success <- round(dat$success)
+dat$failure <- round(dat$failure)
+
+# change mean value fertilisation from percentage to proportion (for plotting)
+dat$mean_value_prop <- dat$mean_value/100
+dat_fert2 <- dat_fert <- dat[dat$life.stage == "fertilisation",]
+
+dat_fert <- dat_fert[c("success", "failure", "sediment_mg_per_l", "ammonium_microM", "phosphorous_microM", "copper_ug_per_l", "salinity_psu", "experiment", "mean_value_prop", "spawn.brood")]
+
+dat_fert <- dat_fert[!(is.na(dat_fert$sediment_mg_per_l) & is.na(dat_fert$ammonium_microM) & is.na(dat_fert$phosphorous_microM) & is.na(dat_fert$copper_ug_per_l) & is.na(dat_fert$salinity_psu)),]
+
+dat_fert$sediment_mg_per_l[is.na(dat_fert$sediment_mg_per_l) | dat_fert$sediment_mg_per_l == 0] <- 0.001 * max(dat_fert2$sediment_mg_per_l, na.rm=TRUE)
+dat_fert$ammonium_microM[is.na(dat_fert$ammonium_microM) | dat_fert$ammonium_microM == 0] <- 0.001 * max(dat_fert2$ammonium_microM, na.rm=TRUE)
+dat_fert$phosphorous_microM[is.na(dat_fert$phosphorous_microM) | dat_fert$phosphorous_microM == 0] <- 0.001 * max(dat_fert2$phosphorous_microM, na.rm=TRUE)
+dat_fert$copper_ug_per_l[is.na(dat_fert$copper_ug_per_l) | dat_fert$copper_ug_per_l == 0] <- 0.01 * max(dat_fert2$copper_ug_per_l, na.rm=TRUE)
+
+dat_fert$salinity_psu[is.na(dat_fert$salinity_psu)] <- 34
+
+dat_fert$rep <- 1:nrow(dat_fert)
+
+# Rescale
+dat_fert$rs_sediment_mg_per_l <- rescale(dat_fert$sediment_mg_per_l)
+dat_fert$rs_ammonium_microM <- rescale(dat_fert$ammonium_microM)
+dat_fert$rs_phosphorous_microM <- rescale(dat_fert$phosphorous_microM)
+dat_fert$rs_copper_ug_per_l <- rescale(dat_fert$copper_ug_per_l)
+dat_fert$rs_salinity_psu <- rescale(dat_fert$salinity_psu)
+dat_fert$rs_salinity_psu_sq <- dat_fert$rs_salinity_psu^2
+
+##MODEL##
+mod_fert_full <- glm(cbind(success, failure) ~ rs_sediment_mg_per_l + rs_ammonium_microM + rs_phosphorous_microM + rs_copper_ug_per_l + rs_salinity_psu + rs_salinity_psu_sq, family=binomial, data=dat_fert)
+summary(mod_fert_full)
+drop1(mod_fert_full, test="Chisq")
+
+dat_fert$experiment <- factor(dat_fert$experiment)
+dat_fert$rep <- factor(dat_fert$rep)
+
+mod_fert_full <- glmer(cbind(success, failure) ~ rs_sediment_mg_per_l + rs_ammonium_microM + rs_phosphorous_microM + rs_copper_ug_per_l + rs_salinity_psu + rs_salinity_psu_sq + (1 | experiment) + (1 | rep), family=binomial, data=dat_fert, control=glmerControl(optimizer="bobyqa", optCtrl=list(maxfun=100000000)))
+summary(mod_fert_full)
+
+sum(residuals(mod_fert_full, type="pearson")^2)/df.residual(mod_fert_full)
+drop1(mod_fert_full, test="Chisq")
+
+##PLOTS FOR FERTILISATION##
+
+# TESTS, should all equal 0, accept salinity
+dat_fert$rs_sediment_mg_per_l[dat_fert$sediment_mg_per_l==0.01 * max(dat_fert2$sediment_mg_per_l, na.rm=TRUE)][1]
+dat_fert$rs_ammonium_microM[dat_fert$ammonium_microM==0.001 * max(dat_fert2$ammonium_microM, na.rm=TRUE)][1]
+dat_fert$rs_phosphorous_microM[dat_fert$phosphorous_microM==0.001 * max(dat_fert2$phosphorous_microM, na.rm=TRUE)][1]
+dat_fert$rs_copper_ug_per_l[dat_fert$copper_ug_per_l==0.01 * max(dat_fert2$copper_ug_per_l, na.rm=TRUE)][1]
+dat_fert$rs_salinity_psu[dat_fert$salinity_psu==34][1]
+
+
+pdf("figures/figure_1.pdf", 5.5, 8)
+
+par(mfrow=c(3,2), oma=c(0,2,0,0), mar=c(4, 4, 2, 1))
+
+# COPPER
+# ss <- seq(min(dat_fert2$copper_ug_per_l), max(dat_fert2$copper_ug_per_l), 0.05)
+ss <- seq(0, 1, 0.01)
+newdat <- expand.grid(rs_sediment_mg_per_l=0, rs_ammonium_microM=0, rs_phosphorous_microM=0, rs_copper_ug_per_l = ss, rs_salinity_psu = 0.8478261, rs_salinity_psu_sq = 0.8478261^2, success=0, failure=0)
+mm <- model.matrix(terms(mod_fert_full), newdat)
+newdat$success <- mm %*% fixef(mod_fert_full)
+pvar1 <- diag(mm %*% tcrossprod(vcov(mod_fert_full),mm))
+tvar1 <- pvar1 + VarCorr(mod_fert_full)$experiment[1] + VarCorr(mod_fert_full)$rep[1]  
+
+plot(dat_fert$rs_copper_ug_per_l, dat_fert$mean_value_prop, xlab="Copper (痢/L)", ylab="", ylim=c(0, 1), axes=FALSE)
+axis(1)
+axis(2, las=2)
+lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
+polygon(c(ss, rev(ss)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit(newdat$success-2*sqrt(pvar1)))), col=rgb(0,0,0,0.2), border=NA)
+mtext("A", side=3, line=0, adj=0, cex=1.2)
+
+# SEDIMENT
+# ss <- seq(min(dat_fert2$sediment_mg_per_l), max(dat_fert2$sediment_mg_per_l), 0.01)
+newdat <- expand.grid(rs_sediment_mg_per_l=ss, rs_ammonium_microM=0, rs_phosphorous_microM=0, rs_copper_ug_per_l = 0, rs_salinity_psu = 0.8478261, rs_salinity_psu_sq = 0.8478261^2, success=0, failure=0)
+mm <- model.matrix(terms(mod_fert_full),newdat)
+newdat$success <- mm %*% fixef(mod_fert_full)
+pvar1 <- diag(mm %*% tcrossprod(vcov(mod_fert_full),mm))
+tvar1 <- pvar1 + VarCorr(mod_fert_full)$experiment[1] + VarCorr(mod_fert_full)$rep[1]  
+
+plot(dat_fert$rs_sediment_mg_per_l, dat_fert$mean_value_prop, xlab="Sediment (mg/L)", ylab="", ylim=c(0, 1), axes=FALSE)
+axis(1)
+axis(2, las=2)
+lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
+polygon(c(ss, rev(ss)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit(newdat$success-2*sqrt(pvar1)))), col=rgb(0,0,0,0.2), border=NA)
+mtext("B", side=3, line=0, adj=0, cex=1.2)
+
+# AMMONIUM
+# ss <- seq(min(dat_fert$ammonium_microM), max(dat_fert$ammonium_microM), 0.05)
+newdat <- expand.grid(rs_sediment_mg_per_l=0, rs_ammonium_microM=ss, rs_phosphorous_microM=0, rs_copper_ug_per_l = 0, rs_salinity_psu = 0.8478261, rs_salinity_psu_sq = 0.8478261^2, success=0, failure=0)
+mm <- model.matrix(terms(mod_fert_full),newdat)
+newdat$success <- mm %*% fixef(mod_fert_full)
+pvar1 <- diag(mm %*% tcrossprod(vcov(mod_fert_full),mm))
+tvar1 <- pvar1 + VarCorr(mod_fert_full)$experiment[1] + VarCorr(mod_fert_full)$rep[1]  
+
+plot(dat_fert$rs_ammonium_microM, dat_fert$mean_value_prop, xlab="Ammonium (然)", ylab="", ylim=c(0, 1), axes=FALSE)
+axis(1)
+axis(2, las=2)
+lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
+polygon(c(ss, rev(ss)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit(newdat$success-2*sqrt(pvar1)))), col=rgb(0,0,0,0.2), border=NA)
+mtext("C", side=3, line=0, adj=0, cex=1.2)
+
+# PHOSPHOROUS
+# ss <- seq(min(dat_fert$phosphorous_microM), max(dat_fert$phosphorous_microM), 0.05)
+newdat <- expand.grid(rs_sediment_mg_per_l=0, rs_ammonium_microM=0, rs_phosphorous_microM=ss, rs_copper_ug_per_l = 0, rs_salinity_psu = 0.8478261, rs_salinity_psu_sq = 0.8478261^2, success=0, failure=0)
+mm <- model.matrix(terms(mod_fert_full),newdat)
+newdat$success <- mm %*% fixef(mod_fert_full)
+pvar1 <- diag(mm %*% tcrossprod(vcov(mod_fert_full),mm))
+tvar1 <- pvar1 + VarCorr(mod_fert_full)$experiment[1] + VarCorr(mod_fert_full)$rep[1] 
+
+plot(dat_fert$rs_phosphorous_microM, dat_fert$mean_value_prop, xlab="Phosphorous (然)", ylab="", ylim=c(0, 1), axes=FALSE)
+axis(1)
+axis(2, las=2)
+lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
+polygon(c(ss, rev(ss)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit(newdat$success-2*sqrt(pvar1)))), col=rgb(0,0,0,0.2), border=NA)
+mtext("D", side=3, line=0, adj=0, cex=1.2)
+
+# SALINITY
+# ss <- seq(min(dat_fert$salinity_psu), max(dat_fert$salinity_psu), 0.1)
+newdat <- expand.grid(rs_sediment_mg_per_l=0, rs_ammonium_microM=0, rs_phosphorous_microM=0, rs_copper_ug_per_l = 0, rs_salinity_psu = ss, success=0, failure=0)
+newdat$rs_salinity_psu_sq = newdat$rs_salinity_psu^2
+mm <- model.matrix(terms(mod_fert_full),newdat)
+newdat$success <- mm %*% fixef(mod_fert_full)
+pvar1 <- diag(mm %*% tcrossprod(vcov(mod_fert_full),mm))
+tvar1 <- pvar1 + VarCorr(mod_fert_full)$experiment[1] + VarCorr(mod_fert_full)$rep[1] 
+
+plot(dat_fert$rs_salinity_psu, dat_fert$mean_value_prop, xlab="Salinity (psu)", ylab="", ylim=c(0, 1), axes=FALSE)
+axis(1)
+axis(2, las=2)
+lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
+polygon(c(ss, rev(ss)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit(newdat$success-2*sqrt(pvar1)))), col=rgb(0,0,0,0.2), border=NA)
+mtext("E", side=3, line=0, adj=0, cex=1.2)
+
+
+mtext("Proportion fertilised", 2, line=0, outer=TRUE)
+
+dev.off()
+
+###########################
 ##FULL MODEL##   
-dat_surv2 <- dat_surv[c("success", "failure", "copper_ug_per_l", "lead_ug_per_l", "salinity_psu", "tempertaure_degrees_celcius", "acidification_pH", "experiment", "mean_value_prop", "spawn.brood")]
-dat_surv2 <- dat_surv2[!(is.na(dat_surv2$copper_ug_per_l) & is.na(dat_surv2$lead_ug_per_l) & is.na(dat_surv2$salinity_psu) & is.na(dat_surv2$acidification_pH) & is.na(dat_surv2$tempertaure_degrees_celcius)),]
 
 
-dat_surv2$copper_ug_per_l[is.na(dat_surv2$copper_ug_per_l)] <- log10(0.9)
-dat_surv2$lead_ug_per_l[is.na(dat_surv2$lead_ug_per_l)] <- log10(0.03)
-dat_surv2$salinity_psu[is.na(dat_surv2$salinity_psu)] <- 34
+dat <- read.csv("data/data_table_factors - data.csv", as.is=TRUE)
 
-dat_surv2$acidification_pH[is.na(dat_surv2$acidification_pH)] <- 8.1
+dat$success <- round(dat$success)
+dat$failure <- round(dat$failure)
 
-dat_surv2$tempertaure_degrees_celcius[is.na(dat_surv2$tempertaure_degrees_celcius)] <- 28
-dat_surv2$tempertaure_degrees_celcius_sq <- dat_surv2$tempertaure_degrees_celcius^2
+# change mean value fertilisation from percentage to proportion (for plotting)
+dat$mean_value_prop <- dat$mean_value/100
+dat_surv2 <- dat_surv <- dat[dat$life.stage == "survivorship",]
 
-dat_surv2$rep <- 1:nrow(dat_surv2)
+dat_surv <- dat_surv[c("success", "failure", "copper_ug_per_l", "lead_ug_per_l", "salinity_psu", "tempertaure_degrees_celcius", "acidification_pH", "experiment", "mean_value_prop", "spawn.brood")]
 
-dat_surv2$experiment <- factor(dat_surv2$experiment)
-dat_surv2$rep <- factor(dat_surv2$rep)
+dat_surv <- dat_surv[!(is.na(dat_surv$copper_ug_per_l) & is.na(dat_surv$lead_ug_per_l) & is.na(dat_surv$salinity_psu) & is.na(dat_surv$acidification_pH) & is.na(dat_surv$tempertaure_degrees_celcius)),]
+
+dat_surv$copper_ug_per_l[is.na(dat_surv$copper_ug_per_l) | dat_surv$copper_ug_per_l == 0] <- 0.01 * max(dat_surv2$copper_ug_per_l, na.rm=TRUE)
+dat_surv$lead_ug_per_l[is.na(dat_surv$lead_ug_per_l) | dat_surv$lead_ug_per_l == 0] <- 0.001 * max(dat_surv2$lead_ug_per_l, na.rm=TRUE)
+
+dat_surv$salinity_psu[is.na(dat_surv$salinity_psu)] <- 34
+dat_surv$acidification_pH[is.na(dat_surv$acidification_pH)] <- 8.1
+dat_surv$tempertaure_degrees_celcius[is.na(dat_surv$tempertaure_degrees_celcius)] <- 28
+
+dat_surv$rep <- 1:nrow(dat_surv)
+
+
+# Rescale
+dat_surv$rs_copper_ug_per_l <- rescale(dat_surv$copper_ug_per_l)
+dat_surv$rs_lead_ug_per_l <- rescale(dat_surv$lead_ug_per_l)
+dat_surv$rs_salinity_psu <- rescale(dat_surv$salinity_psu)
+dat_surv$rs_salinity_psu_sq <- dat_surv$rs_salinity_psu^2
+dat_surv$rs_acidification_pH <- rescale(dat_surv$acidification_pH)
+# dat_surv$rs_acidification_pH_sq <- dat_surv$rs_acidification_pH^2
+dat_surv$rs_tempertaure_degrees_celcius <- rescale(dat_surv$tempertaure_degrees_celcius)
+dat_surv$rs_tempertaure_degrees_celcius_sq <- dat_surv$rs_tempertaure_degrees_celcius^2
+
+
+dat_surv$experiment <- factor(dat_surv$experiment)
+dat_surv$rep <- factor(dat_surv$rep)
 
 ## MODEL##
-mod_surv_full <- glm(cbind(success, failure) ~ copper_ug_per_l + lead_ug_per_l + salinity_psu + acidification_pH + tempertaure_degrees_celcius + tempertaure_degrees_celcius_sq, family=binomial, data=dat_surv2)
+mod_surv_full <- glm(cbind(success, failure) ~ rs_copper_ug_per_l + rs_lead_ug_per_l + rs_salinity_psu + rs_salinity_psu_sq + rs_acidification_pH + rs_tempertaure_degrees_celcius + rs_tempertaure_degrees_celcius_sq, family=binomial, data=dat_surv)
 summary(mod_surv_full)
 drop1(mod_surv_full, test="Chisq")
 
-mod_surv_full <- glmer(cbind(success, failure) ~ copper_ug_per_l + lead_ug_per_l + salinity_psu + acidification_pH + tempertaure_degrees_celcius + tempertaure_degrees_celcius_sq + (1 | experiment) + (1 | rep), family=binomial, data=dat_surv2, control=glmerControl(optimizer="bobyqa", optCtrl=list(maxfun=2e4)))
+mod_surv_full <- glmer(cbind(success, failure) ~ rs_copper_ug_per_l + rs_lead_ug_per_l + rs_salinity_psu + rs_salinity_psu_sq + rs_acidification_pH + rs_tempertaure_degrees_celcius + rs_tempertaure_degrees_celcius_sq + (1 | experiment) + (1 | rep), family=binomial, data=dat_surv, control=glmerControl(optimizer="bobyqa", optCtrl=list(maxfun=2e4)))
 
 summary(mod_surv_full)
 
@@ -311,11 +379,15 @@ sum(residuals(mod_surv_full, type="pearson")^2)/df.residual(mod_surv_full)
 
 drop1(mod_surv_full, test="Chisq")
 
-mod_surv_full <- glmer(cbind(success, failure) ~ copper_ug_per_l + lead_ug_per_l + salinity_psu + (1 | experiment) + (1 | rep), family=binomial, data=dat_surv2, control=glmerControl(optimizer="bobyqa", optCtrl=list(maxfun=2e4)))
+mod_surv_full <- glmer(cbind(success, failure) ~ rs_copper_ug_per_l + rs_lead_ug_per_l + rs_salinity_psu + rs_salinity_psu_sq + (1 | experiment) + (1 | rep), family=binomial, data=dat_surv, control=glmerControl(optimizer="bobyqa", optCtrl=list(maxfun=2e4)))
 
 summary(mod_surv_full)
 drop1(mod_surv_full, test="Chisq")
 
+# TESTS, should all equal 0, accept salinity
+dat_surv$rs_copper_ug_per_l[dat_surv$copper_ug_per_l==0.01 * max(dat_surv2$copper_ug_per_l, na.rm=TRUE)][1]
+dat_surv$rs_lead_ug_per_l[dat_surv$lead_ug_per_l==0.001 * max(dat_surv2$lead_ug_per_l, na.rm=TRUE)][1]
+dat_surv$rs_salinity_psu[dat_surv$salinity_psu==34][1]
 
 ##PLOTS FOR SURVIVAL##
 
@@ -324,14 +396,16 @@ pdf("figures/figure_2.pdf", 5.5, 8)
 par(mfrow=c(3,1), oma=c(0,2,0,0), mar=c(5, 4, 2, 1))
 
 # COPPER
-ss <- seq(min(dat_surv2$copper_ug_per_l), max(dat_surv2$copper_ug_per_l), 0.05)
-newdat <- expand.grid(copper_ug_per_l = ss, lead_ug_per_l=log10(0.03), salinity_psu = 34, success=0, failure=0)
+
+ss <- seq(0, 1, 0.01)
+# ss <- seq(min(dat_surv2$copper_ug_per_l), max(dat_surv2$copper_ug_per_l), 0.05)
+newdat <- expand.grid(rs_copper_ug_per_l = ss, rs_lead_ug_per_l=0, rs_salinity_psu = 0.8478261, success=0, failure=0)
 mm <- model.matrix(terms(mod_surv_full), newdat)
 newdat$success <- mm %*% fixef(mod_surv_full)
 pvar1 <- diag(mm %*% tcrossprod(vcov(mod_surv_full),mm))
 tvar1 <- pvar1 + VarCorr(mod_surv_full)$experiment[1] + VarCorr(mod_surv_full)$rep[1]  
 
-plot(dat_surv2$copper_ug_per_l, dat_surv2$mean_value_prop, xlab="Copper (痢/L)", ylab="", ylim=c(0, 1),  axes=FALSE)
+plot(dat_surv$rs_copper_ug_per_l, dat_surv$mean_value_prop, xlab="Copper (痢/L)", ylab="", ylim=c(0, 1),  axes=FALSE)
 axis(1)
 axis(2)
 lines(ss, inv.logit(newdat$success), lwd=1, lty=1)
@@ -339,14 +413,14 @@ polygon(c(ss, rev(ss)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit
 mtext("A", side=3, line=0, adj=0, cex=1.2)
 
 # LEAD
-ss <- seq(min(dat_surv2$lead_ug_per_l), max(dat_surv2$lead_ug_per_l), 0.05)
-newdat <- expand.grid(copper_ug_per_l=log10(0.9), lead_ug_per_l = ss, salinity_psu = 34, success=0, failure=0)
+# ss <- seq(min(dat_surv2$lead_ug_per_l), max(dat_surv2$lead_ug_per_l), 0.05)
+newdat <- expand.grid(rs_copper_ug_per_l=0, rs_lead_ug_per_l = ss, rs_salinity_psu = 0.8478261, success=0, failure=0)
 mm <- model.matrix(terms(mod_surv_full), newdat)
 newdat$success <- mm %*% fixef(mod_surv_full)
 pvar1 <- diag(mm %*% tcrossprod(vcov(mod_surv_full),mm))
 tvar1 <- pvar1 + VarCorr(mod_surv_full)$experiment[1] + VarCorr(mod_surv_full)$rep[1]  
 
-plot(dat_surv2$copper_ug_per_l, dat_surv2$mean_value_prop, xlab="Lead (痢/L)", ylab="", ylim=c(0, 1), axes=FALSE)
+plot(dat_surv$rs_copper_ug_per_l, dat_surv$mean_value_prop, xlab="Lead (痢/L)", ylab="", ylim=c(0, 1), axes=FALSE)
 axis(1)
 axis(2)
 lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
@@ -354,14 +428,15 @@ polygon(c(ss, rev(ss)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit
 mtext("B", side=3, line=0, adj=0, cex=1.2)
 
 #SALINITY
-ss <- seq(min(dat_surv2$salinity_psu), max(dat_surv2$salinity_psu), 0.2)
-newdat <- expand.grid(copper_ug_per_l=log10(0.9), lead_ug_per_l = log10(0.03), salinity_psu=ss, success=0, failure=0)
+# ss <- seq(min(dat_surv2$salinity_psu), max(dat_surv2$salinity_psu), 0.2)
+newdat <- expand.grid(rs_copper_ug_per_l=0, rs_lead_ug_per_l = 0, rs_salinity_psu=ss, success=0, failure=0)
+newdat$rs_salinity_psu_sq <- newdat$rs_salinity_psu^2
 mm <- model.matrix(terms(mod_surv_full),newdat)
 newdat$success <- mm %*% fixef(mod_surv_full)
 pvar1 <- diag(mm %*% tcrossprod(vcov(mod_surv_full),mm))
 tvar1 <- pvar1 + VarCorr(mod_surv_full)$experiment[1] + VarCorr(mod_surv_full)$rep[1] 
 
-plot(dat_fert2$salinity_psu, dat_fert2$mean_value_prop, xlab="Salinity (psu)", ylab="", ylim=c(0, 1), axes=FALSE)
+plot(dat_surv$rs_salinity_psu, dat_surv$mean_value_prop, xlab="Salinity (psu)", ylab="", ylim=c(0, 1), axes=FALSE)
 axis(1)
 axis(2)
 lines(ss, inv.logit(newdat$success), lwd=1, lty=1) 
@@ -399,17 +474,44 @@ dev.off()
 ##LOCATIONS/WATER SAMPLES##
 ############################
 
+water <- read.csv("data/water_samples.csv", as.is=TRUE)
+
+# Water data preperation, deadling with non-numeric characters like "<"
+water[water == "<1"] <- "0.5"
+water[water == "<0.05"] <- "0.025"
+water[water == "<0.1"] <- "0.05"
+water[water == "<0.25"] <- "0.125"
+water[water == "<0.5"] <- "0.25"
+water[water == "<0.005"] <- "0.0025"
+water[water == "<5"] <- "2.5"
+
+water[,2:14] <- apply(water[,2:14], 2, as.numeric)
+water <- water[1:3,]
+
+
+
+
 ##Fertilisation Model##
 pdf("figures/figure_4.pdf", 5.5, 8)
 par(mfrow=c(2,1), oma=c(0,2,0,0), mar=c(5, 5, 3, 1))
 
-water_fert <- data.frame(sediment_mg_per_l=log10(water$suspended_solids_mg.l), 
-                         copper_ug_per_l=log10(water$copper_ug.l),
-                         ammonium_microM=log10(water$ammonia_mg.l),
-                         phosphorous_microM=log10(water$phosphorus_mg.l), 
-                         salinity_psu=water$salinity_g.l, 
-                         salinity_psu_sq =water$salinity_g.l^2, 
-                         success=0, failure=0)
+mod_sediment_mg_per_l <- lm(rs_sediment_mg_per_l ~ sediment_mg_per_l, dat_fert)
+mod_copper_ug_per_l <- lm(rs_copper_ug_per_l ~ copper_ug_per_l, dat_fert)
+mod_ammonium_microM <- lm(rs_ammonium_microM ~ ammonium_microM, dat_fert)
+mod_phosphorous_microM <- lm(rs_phosphorous_microM ~ phosphorous_microM, dat_fert)
+mod_salinity_psu <- lm(rs_salinity_psu ~ salinity_psu, dat_fert)
+
+
+water_fert <- data.frame(
+  rs_sediment_mg_per_l=predict(mod_sediment_mg_per_l, list(sediment_mg_per_l=water$suspended_solids_mg.l)), 
+  rs_copper_ug_per_l=predict(mod_copper_ug_per_l, list(copper_ug_per_l=water$copper_ug.l)),
+  rs_ammonium_microM=predict(mod_ammonium_microM, list(ammonium_microM=water$ammonia_mg.l)),
+  rs_phosphorous_microM=predict(mod_phosphorous_microM, list(phosphorous_microM=water$phosphorus_mg.l)), 
+  rs_salinity_psu=predict(mod_salinity_psu, list(salinity_psu=water$salinity_g.l)), 
+  success=0, failure=0
+)
+
+water_fert$rs_salinity_psu_sq <- water_fert$rs_salinity_psu^2
 
 mm_fert <- model.matrix(terms(mod_fert_full), water_fert)
 
@@ -423,10 +525,17 @@ arrows(bp, inv.logit(water_fert$success-2*sqrt(pvar1)), bp, inv.logit(water_fert
 
 
 ##Survival Model##
-water_surv <- data.frame(copper_ug_per_l=log10(water$copper_ug.l), 
-                         lead_ug_per_l=log10(water$lead_ug.l),
-                         salinity_psu=water$salinity_g.l,
-                         success=0, failure=0)
+
+mod_copper_ug_per_l <- lm(rs_copper_ug_per_l ~ copper_ug_per_l, dat_surv)
+mod_lead_ug_per_l <- lm(rs_lead_ug_per_l ~ lead_ug_per_l, dat_surv)
+
+water_surv <- data.frame(
+  rs_copper_ug_per_l=predict(mod_copper_ug_per_l, list(copper_ug_per_l=water$copper_ug.l)),
+  rs_lead_ug_per_l=predict(mod_lead_ug_per_l, list(lead_ug_per_l=water$lead_ug.l)),
+  rs_salinity_psu=predict(mod_salinity_psu, list(salinity_psu=water$salinity_g.l)), 
+  success=0, failure=0
+)
+water_surv$rs_salinity_psu_sq <- water_surv$rs_salinity_psu^2
 
 mm_surv <- model.matrix(terms(mod_surv_full), water_surv)
 
@@ -474,3 +583,7 @@ bp <- barplot(combined_store[,2], xlab="Location", ylab="Proportion of Succesful
 arrows(bp, combined_store[,3], bp, combined_store[,4], code=3, angle=90)
 
 dev.off()
+
+
+
+
