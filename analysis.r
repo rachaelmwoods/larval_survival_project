@@ -29,7 +29,7 @@ lines(ss, pred_fert$fit)
 #ammonium
 mod_fert <- glm(cbind(success, failure) ~ ammonium_microM, family=binomial, data=dat_fert)
 summary(mod_fert)
-plot(mean_value_prop ~ ammonium_microM, col = "dodgerblue", xlab = "Ammonium (µM)", ylab = "",  pch=16, data=dat_fert)
+plot(mean_value_prop ~ ammonium_microM, col = "dodgerblue", xlab = "Ammonium (ÂµM)", ylab = "",  pch=16, data=dat_fert)
 ss <- sort(dat_fert$ammonium_microM)
 pred_fert <- predict(mod_fert, list(ammonium_microM = ss), type="response", se.fit = TRUE)
 lines(ss, pred_fert$fit)
@@ -37,14 +37,14 @@ lines(ss, pred_fert$fit)
 #phosphate
 mod_fert <- glm(cbind(success, failure) ~ phosphorous_microM, family=binomial, data=dat_fert)
 summary(mod_fert)
-plot(mean_value_prop ~ phosphorous_microM, col = "dodgerblue", xlab = "Phosphate (µM)", ylab = "",  pch=16, las=1, data=dat_fert)
+plot(mean_value_prop ~ phosphorous_microM, col = "dodgerblue", xlab = "Phosphate (ÂµM)", ylab = "",  pch=16, las=1, data=dat_fert)
 ss <- sort(dat_fert$phosphorous_microM)
 lines(ss, predict(mod_fert, list(phosphorous_microM = ss), type="response"))
 
 #copper
 mod_fert <- glm(cbind(success, failure) ~ copper_ug_per_l, family=binomial, data=dat_fert)
 summary(mod_fert)
-plot(mean_value_prop ~ copper_ug_per_l, col = "dodgerblue", xlab = "Copper (µg/L)", ylab = "",  pch=16, las=1, data=dat_fert)
+plot(mean_value_prop ~ copper_ug_per_l, col = "dodgerblue", xlab = "Copper (Âµg/L)", ylab = "",  pch=16, las=1, data=dat_fert)
 ss <- sort(dat_fert$copper_ug_per_l)
 lines(ss, predict(mod_fert, list(copper_ug_per_l = ss), type="response"))
 
@@ -53,14 +53,14 @@ lines(ss, predict(mod_fert, list(copper_ug_per_l = ss), type="response"))
 #zinc - REMOVE
 mod_fert <- glm(cbind(success, failure) ~ zinc_ug_per_l, family=binomial, data=dat_fert)
 summary(mod_fert)
-plot(mean_value_prop ~ zinc_ug_per_l, col = "dodgerblue", xlab = "Zinc (µg/L)", ylab = "",  pch=16, las=1, data=dat_fert)
+plot(mean_value_prop ~ zinc_ug_per_l, col = "dodgerblue", xlab = "Zinc (Âµg/L)", ylab = "",  pch=16, las=1, data=dat_fert)
 ss <- sort(dat_fert$zinc_ug_per_l)
 lines(ss, predict(mod_fert, list(zinc_ug_per_l = ss), type="response"))
 
 #cadmium = VERY WEAK RELATOPNSHIP
 mod_fert <- glm(cbind(success, failure) ~ cadmium_ug_per_l, family=binomial, data=dat_fert)
 summary(mod_fert)
-plot(mean_value_prop ~ cadmium_ug_per_l, col = "dodgerblue", xlab = "Cadmium (µg/L)", ylab = "",  pch=16, las=1, data=dat_fert)
+plot(mean_value_prop ~ cadmium_ug_per_l, col = "dodgerblue", xlab = "Cadmium (Âµg/L)", ylab = "",  pch=16, las=1, data=dat_fert)
 ss <- sort(dat_fert$cadmium_ug_per_l)
 pred_fert <- predict(mod_fert, list(cadmium_ug_per_l = ss), type="response", se.fit = TRUE)
 lines(ss, pred_fert$fit)
@@ -68,7 +68,7 @@ lines(ss, pred_fert$fit)
 #nitrate_microM - REMOVE
 mod_fert <- glm(cbind(success, failure) ~ nitrate_microM, family=binomial, data=dat_fert)
 summary(mod_fert)
-plot(mean_value_prop ~ nitrate_microM, col = "dodgerblue", xlab = "Nitrate (µM)", ylab = "",  pch=16, las=1, data=dat_fert)
+plot(mean_value_prop ~ nitrate_microM, col = "dodgerblue", xlab = "Nitrate (ÂµM)", ylab = "",  pch=16, las=1, data=dat_fert)
 ss <- sort(dat_fert$nitrate_microM)
 lines(ss, predict(mod_fert, list(nitrate_microM = ss), type="response"))
 
@@ -116,28 +116,28 @@ par(mfrow=c(4,2), oma=c(0, 2, 0, 0), mar=c(5, 4, 1, 1))
 
 #ammonium - few points
 mod_surv <- glm(cbind(success, failure) ~ ammonium_microM, family=binomial, data=dat_surv)
-plot(mean_value_prop ~ ammonium_microM,  col = "dodgerblue", xlab = "Ammonium (µM)", ylab = "",  pch=16, las=1, data=dat_surv)
+plot(mean_value_prop ~ ammonium_microM,  col = "dodgerblue", xlab = "Ammonium (ÂµM)", ylab = "",  pch=16, las=1, data=dat_surv)
 ss <- sort(dat_surv$ammonium_microM)
 pred_surv <- predict(mod_surv, list(ammonium_microM = ss), type="response", se.fit = TRUE)
 lines(ss, pred_surv$fit)
 
 #copper
 mod_surv <- glm(cbind(success, failure) ~ copper_ug_per_l, family=binomial, data=dat_surv)
-plot(mean_value_prop ~ copper_ug_per_l,  col = "dodgerblue", xlab = "Copper (µg/L)", ylab = "",  pch=16, las=1, data=dat_surv)
+plot(mean_value_prop ~ copper_ug_per_l,  col = "dodgerblue", xlab = "Copper (Âµg/L)", ylab = "",  pch=16, las=1, data=dat_surv)
 ss <- sort(dat_surv$copper_ug_per_l)
 pred_surv <- predict(mod_surv, list(copper_ug_per_l = ss), type="response", se.fit = TRUE)
 lines(ss, pred_surv$fit)
 
 # mercury- REMOVE
 mod_surv <- glm(cbind(success, failure) ~ mercury_ug._per_l, family=binomial, data=dat_surv)
-plot(mean_value_prop ~ mercury_ug._per_l,  col = "dodgerblue", xlab = "Mercury (µg/L)", ylab = "",  pch=16, las=1, data=dat_surv)
+plot(mean_value_prop ~ mercury_ug._per_l,  col = "dodgerblue", xlab = "Mercury (Âµg/L)", ylab = "",  pch=16, las=1, data=dat_surv)
 ss <- sort(dat_surv$mercury_ug._per_l)
 pred_surv <- predict(mod_surv, list(mercury_ug._per_l = ss), type="response", se.fit = TRUE)
 lines(ss, pred_surv$fit)
 
 # lead
 mod_surv <- glm(cbind(success, failure) ~ lead_ug_per_l, family=binomial, data=dat_surv)
-plot(mean_value_prop ~ lead_ug_per_l,  col = "dodgerblue", xlab = "Lead (µg/L)", ylab = "",  pch=16, las=1, data=dat_surv)
+plot(mean_value_prop ~ lead_ug_per_l,  col = "dodgerblue", xlab = "Lead (Âµg/L)", ylab = "",  pch=16, las=1, data=dat_surv)
 ss <- sort(dat_surv$lead_ug_per_l)
 pred_surv <- predict(mod_surv, list(lead_ug_per_l = ss), type="response", se.fit = TRUE)
 lines(ss, pred_surv$fit)
@@ -252,7 +252,7 @@ newdat$success <- mm %*% fixef(mod_fert_full)
 pvar1 <- diag(mm %*% tcrossprod(vcov(mod_fert_full),mm))
 tvar1 <- pvar1 + VarCorr(mod_fert_full)$experiment[1] + VarCorr(mod_fert_full)$rep[1]  
 
-plot(dat_fert$rs_copper_ug_per_l, dat_fert$mean_value_prop, xlab="Copper (µg/L)", ylab="", ylim=c(0, 1), axes=FALSE)
+plot(dat_fert$rs_copper_ug_per_l, dat_fert$mean_value_prop, xlab="Copper (Âµg/L)", ylab="", ylim=c(0, 1), axes=FALSE)
 axis(1)
 axis(2, las=2)
 lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
@@ -282,7 +282,7 @@ newdat$success <- mm %*% fixef(mod_fert_full)
 pvar1 <- diag(mm %*% tcrossprod(vcov(mod_fert_full),mm))
 tvar1 <- pvar1 + VarCorr(mod_fert_full)$experiment[1] + VarCorr(mod_fert_full)$rep[1]  
 
-plot(dat_fert$rs_ammonium_microM, dat_fert$mean_value_prop, xlab="Ammonium (µM)", ylab="", ylim=c(0, 1), axes=FALSE)
+plot(dat_fert$rs_ammonium_microM, dat_fert$mean_value_prop, xlab="Ammonium (ÂµM)", ylab="", ylim=c(0, 1), axes=FALSE)
 axis(1)
 axis(2, las=2)
 lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
@@ -297,7 +297,7 @@ newdat$success <- mm %*% fixef(mod_fert_full)
 pvar1 <- diag(mm %*% tcrossprod(vcov(mod_fert_full),mm))
 tvar1 <- pvar1 + VarCorr(mod_fert_full)$experiment[1] + VarCorr(mod_fert_full)$rep[1] 
 
-plot(dat_fert$rs_phosphorous_microM, dat_fert$mean_value_prop, xlab="Phosphorous (µM)", ylab="", ylim=c(0, 1), axes=FALSE)
+plot(dat_fert$rs_phosphorous_microM, dat_fert$mean_value_prop, xlab="Phosphorous (ÂµM)", ylab="", ylim=c(0, 1), axes=FALSE)
 axis(1)
 axis(2, las=2)
 lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
@@ -405,7 +405,7 @@ newdat$success <- mm %*% fixef(mod_surv_full)
 pvar1 <- diag(mm %*% tcrossprod(vcov(mod_surv_full),mm))
 tvar1 <- pvar1 + VarCorr(mod_surv_full)$experiment[1] + VarCorr(mod_surv_full)$rep[1]  
 
-plot(dat_surv$rs_copper_ug_per_l, dat_surv$mean_value_prop, xlab="Copper (µg/L)", ylab="", ylim=c(0, 1),  axes=FALSE)
+plot(dat_surv$rs_copper_ug_per_l, dat_surv$mean_value_prop, xlab="Copper (Âµg/L)", ylab="", ylim=c(0, 1),  axes=FALSE)
 axis(1)
 axis(2)
 lines(ss, inv.logit(newdat$success), lwd=1, lty=1)
@@ -420,7 +420,7 @@ newdat$success <- mm %*% fixef(mod_surv_full)
 pvar1 <- diag(mm %*% tcrossprod(vcov(mod_surv_full),mm))
 tvar1 <- pvar1 + VarCorr(mod_surv_full)$experiment[1] + VarCorr(mod_surv_full)$rep[1]  
 
-plot(dat_surv$rs_copper_ug_per_l, dat_surv$mean_value_prop, xlab="Lead (µg/L)", ylab="", ylim=c(0, 1), axes=FALSE)
+plot(dat_surv$rs_copper_ug_per_l, dat_surv$mean_value_prop, xlab="Lead (Âµg/L)", ylab="", ylim=c(0, 1), axes=FALSE)
 axis(1)
 axis(2)
 lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
@@ -487,7 +487,6 @@ water[water == "<5"] <- "2.5"
 
 water[,2:14] <- apply(water[,2:14], 2, as.numeric)
 water <- water[1:3,]
-
 
 
 
