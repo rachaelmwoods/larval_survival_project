@@ -179,7 +179,6 @@ mtext("Proportion survived", 2, line=0, outer=TRUE)
 dev.off()
 
 
-
 ############################
 ## FULL MODEL FERTILISATION
 ##############################
@@ -325,9 +324,9 @@ mtext("Proportion fertilised", 2, line=0, outer=TRUE)
 
 dev.off()
 
-###########################
-##FULL MODEL##   
-
+#######################
+##FULL MODEL SURVIVAL##   
+#######################
 
 dat <- read.csv("data/data_table_factors - data.csv", as.is=TRUE)
 
