@@ -390,9 +390,10 @@ dat_surv$rs_salinity_psu[dat_surv$salinity_psu==34][1]
 
 ##PLOTS FOR SURVIVAL##
 
+
 pdf("figures/figure_2.pdf", 5.5, 8)
 
-par(mfrow=c(3,1), oma=c(0,2,0,0), mar=c(5, 4, 2, 1))
+par(mfrow=c(3,1), oma=c(0,2,0,0), mar=c(5, 4, 2, 7))
 
 # COPPER
 
@@ -441,7 +442,6 @@ axis(2)
 lines(ss, inv.logit(newdat$success), lwd=1, lty=1) 
 polygon(c(ss, rev(ss)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit(newdat$success-2*sqrt(pvar1)))), col=rgb(0,0,0,0.2), border=NA)
 mtext("C", side=3, line=0, adj=0, cex=1.2)
-
 
 mtext("Proportion survived", 2, line=0, outer=TRUE)
 
@@ -520,7 +520,7 @@ tvar1 <- pvar1 + VarCorr(mod_fert_full)$experiment[1] + VarCorr(mod_fert_full)$r
 bp <- barplot(t(inv.logit(water_fert$success)), xlab="Location", ylab="Proportion of Larvae Fertilised", ylim=c(0, 1), names.arg=water$sample)
 #error bars
 arrows(bp, inv.logit(water_fert$success-2*sqrt(pvar1)), bp, inv.logit(water_fert$success+2*sqrt(pvar1)), code=3, angle=90)
-
+mtext("E", side=3, line=0, adj=0, cex=1.2)
 
 ##Survival Model##
 
