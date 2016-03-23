@@ -9,9 +9,9 @@ dat <- read.csv("data/data_table_factors - data.csv", as.is=TRUE)
 # change mean value fertilisation from percentage to proportion (for plotting)
 dat$mean_value_prop <- dat$mean_value/100
 
-#########################
-## FERTILISATION MODEL ##
-#########################
+################################
+## FERTILISATION PRE-ANALYSIS ##
+################################
 dat_fert <- dat[dat$life.stage == "fertilisation",]
 dat_fert$rep <- 1:nrow(dat_fert)
 
@@ -104,9 +104,9 @@ dev.off()
 
 
 
-##################
-##SURVIVAL MODEL##
-##################
+#########################
+##SURVIVAL PRE-ANALYSIS##
+#########################
 dat_surv <- dat[dat$life.stage == "survivorship",]
 dat_surv$rep <- 1:nrow(dat_surv)
 
@@ -153,7 +153,6 @@ drop1(mod_surv, test="Chisq")
 
 mod_surv <- glm(cbind(success, failure) ~ salinity_psu, family=binomial, data=dat_surv)
 
-
 # acidification - VERY WEAK
 dat_surv$acidification_pH_sq <- dat_surv$acidification_pH^2
 mod_surv <- glm(cbind(success, failure) ~ acidification_pH + acidification_pH_sq, family=binomial, data=dat_surv)
@@ -179,9 +178,9 @@ mtext("Proportion survived", 2, line=0, outer=TRUE)
 dev.off()
 
 
-############################
-## FULL MODEL FERTILISATION
-##############################
+#########################
+## FERTILISATION MODEL ##
+#########################
 
 # Load datasets
 dat <- read.csv("data/data_table_factors - data.csv", as.is=TRUE)
@@ -242,9 +241,9 @@ pdf("figures/figure_1.pdf", 5.5, 8)
 
 par(mfrow=c(3,2), oma=c(0,2,0,0), mar=c(4, 4, 2, 1))
 
-# COPPER
-# ss <- seq(min(dat_fert2$copper_ug_per_l), max(dat_fert2$copper_ug_per_l), 0.05)
 ss <- seq(0, 1, 0.01)
+
+# COPPER
 newdat <- expand.grid(rs_sediment_mg_per_l=0, rs_ammonium_microM=0, rs_phosphorous_microM=0, rs_copper_ug_per_l = ss, rs_salinity_psu = 0.8478261, rs_salinity_psu_sq = 0.8478261^2, success=0, failure=0)
 mm <- model.matrix(terms(mod_fert_full), newdat)
 newdat$success <- mm %*% fixef(mod_fert_full)
@@ -259,7 +258,6 @@ polygon(c(ss, rev(ss)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit
 mtext("A", side=3, line=0, adj=0, cex=1.2)
 
 # SEDIMENT
-# ss <- seq(min(dat_fert2$sediment_mg_per_l), max(dat_fert2$sediment_mg_per_l), 0.01)
 newdat <- expand.grid(rs_sediment_mg_per_l=ss, rs_ammonium_microM=0, rs_phosphorous_microM=0, rs_copper_ug_per_l = 0, rs_salinity_psu = 0.8478261, rs_salinity_psu_sq = 0.8478261^2, success=0, failure=0)
 mm <- model.matrix(terms(mod_fert_full),newdat)
 newdat$success <- mm %*% fixef(mod_fert_full)
@@ -274,7 +272,6 @@ polygon(c(ss, rev(ss)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit
 mtext("B", side=3, line=0, adj=0, cex=1.2)
 
 # AMMONIUM
-# ss <- seq(min(dat_fert$ammonium_microM), max(dat_fert$ammonium_microM), 0.05)
 newdat <- expand.grid(rs_sediment_mg_per_l=0, rs_ammonium_microM=ss, rs_phosphorous_microM=0, rs_copper_ug_per_l = 0, rs_salinity_psu = 0.8478261, rs_salinity_psu_sq = 0.8478261^2, success=0, failure=0)
 mm <- model.matrix(terms(mod_fert_full),newdat)
 newdat$success <- mm %*% fixef(mod_fert_full)
@@ -289,7 +286,6 @@ polygon(c(ss, rev(ss)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit
 mtext("C", side=3, line=0, adj=0, cex=1.2)
 
 # PHOSPHOROUS
-# ss <- seq(min(dat_fert$phosphorous_microM), max(dat_fert$phosphorous_microM), 0.05)
 newdat <- expand.grid(rs_sediment_mg_per_l=0, rs_ammonium_microM=0, rs_phosphorous_microM=ss, rs_copper_ug_per_l = 0, rs_salinity_psu = 0.8478261, rs_salinity_psu_sq = 0.8478261^2, success=0, failure=0)
 mm <- model.matrix(terms(mod_fert_full),newdat)
 newdat$success <- mm %*% fixef(mod_fert_full)
@@ -304,7 +300,6 @@ polygon(c(ss, rev(ss)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit
 mtext("D", side=3, line=0, adj=0, cex=1.2)
 
 # SALINITY
-# ss <- seq(min(dat_fert$salinity_psu), max(dat_fert$salinity_psu), 0.1)
 newdat <- expand.grid(rs_sediment_mg_per_l=0, rs_ammonium_microM=0, rs_phosphorous_microM=0, rs_copper_ug_per_l = 0, rs_salinity_psu = ss, success=0, failure=0)
 newdat$rs_salinity_psu_sq = newdat$rs_salinity_psu^2
 mm <- model.matrix(terms(mod_fert_full),newdat)
@@ -324,9 +319,11 @@ mtext("Proportion fertilised", 2, line=0, outer=TRUE)
 
 dev.off()
 
-#######################
-##FULL MODEL SURVIVAL##   
-#######################
+
+
+####################
+## SURVIVAL MODEL ##   
+####################
 
 dat <- read.csv("data/data_table_factors - data.csv", as.is=TRUE)
 
@@ -390,15 +387,13 @@ dat_surv$rs_salinity_psu[dat_surv$salinity_psu==34][1]
 
 ##PLOTS FOR SURVIVAL##
 
-
 pdf("figures/figure_2.pdf", 5.5, 8)
 
 par(mfrow=c(3,1), oma=c(0,2,0,0), mar=c(5, 4, 2, 7))
 
-# COPPER
-
 ss <- seq(0, 1, 0.01)
-# ss <- seq(min(dat_surv2$copper_ug_per_l), max(dat_surv2$copper_ug_per_l), 0.05)
+
+# COPPER
 newdat <- expand.grid(rs_copper_ug_per_l = ss, rs_lead_ug_per_l=0, rs_salinity_psu = 0.8478261, success=0, failure=0)
 mm <- model.matrix(terms(mod_surv_full), newdat)
 newdat$success <- mm %*% fixef(mod_surv_full)
@@ -413,7 +408,6 @@ polygon(c(ss, rev(ss)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit
 mtext("A", side=3, line=0, adj=0, cex=1.2)
 
 # LEAD
-# ss <- seq(min(dat_surv2$lead_ug_per_l), max(dat_surv2$lead_ug_per_l), 0.05)
 newdat <- expand.grid(rs_copper_ug_per_l=0, rs_lead_ug_per_l = ss, rs_salinity_psu = 0.8478261, success=0, failure=0)
 mm <- model.matrix(terms(mod_surv_full), newdat)
 newdat$success <- mm %*% fixef(mod_surv_full)
@@ -428,7 +422,6 @@ polygon(c(ss, rev(ss)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit
 mtext("B", side=3, line=0, adj=0, cex=1.2)
 
 #SALINITY
-# ss <- seq(min(dat_surv2$salinity_psu), max(dat_surv2$salinity_psu), 0.2)
 newdat <- expand.grid(rs_copper_ug_per_l=0, rs_lead_ug_per_l = 0, rs_salinity_psu=ss, success=0, failure=0)
 newdat$rs_salinity_psu_sq <- newdat$rs_salinity_psu^2
 mm <- model.matrix(terms(mod_surv_full),newdat)
@@ -448,9 +441,9 @@ mtext("Proportion survived", 2, line=0, outer=TRUE)
 dev.off()
 
 
-###################
-#VARIANCE ANALYSIS#
-###################
+#######################
+## VARIANCE ANALYSIS ##
+#######################
 
 pdf("figures/figure_3.pdf", 5.5, 8)
 
@@ -469,9 +462,10 @@ hier.part(dat_surv$mean_value_prop, factors, family = "binomial", gof = "logLik"
 
 dev.off()
 
-###########################
-##LOCATIONS/WATER SAMPLES##
-############################
+
+#############################
+## LOCATIONS/WATER SAMPLES ##
+##############################
 
 water <- read.csv("data/water_samples.csv", as.is=TRUE)
 
@@ -488,8 +482,8 @@ water[,2:14] <- apply(water[,2:14], 2, as.numeric)
 water <- water[1:3,]
 
 
-
 ##Fertilisation Model##
+
 pdf("figures/figure_4.pdf", 5.5, 8)
 par(mfrow=c(2,1), oma=c(0,2,0,0), mar=c(5, 5, 3, 1))
 
@@ -547,9 +541,9 @@ arrows(bp, inv.logit(water_surv$success-2*sqrt(pvar1)), bp, inv.logit(water_surv
 
 dev.off()
 
-##################
-##COMBINED MODEL##
-##################
+####################
+## COMBINED MODEL ##
+####################
 
 pdf("figures/figure_5.pdf", 5.5, 8)
 par(mfrow=c(2,1), oma=c(0,2,0,0), mar=c(5, 5, 3, 1))
@@ -581,7 +575,5 @@ bp <- barplot(combined_store[,2], xlab="Location", ylab="Proportion of Succesful
 arrows(bp, combined_store[,3], bp, combined_store[,4], code=3, angle=90)
 
 dev.off()
-
-
 
 
