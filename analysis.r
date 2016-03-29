@@ -250,11 +250,14 @@ newdat$success <- mm %*% fixef(mod_fert_full)
 pvar1 <- diag(mm %*% tcrossprod(vcov(mod_fert_full),mm))
 tvar1 <- pvar1 + VarCorr(mod_fert_full)$experiment[1] + VarCorr(mod_fert_full)$rep[1]  
 
-plot(dat_fert$rs_copper_ug_per_l, dat_fert$mean_value_prop, xlab="Copper (µg/L)", ylab="", ylim=c(0, 1), axes=FALSE)
+plot(dat_fert$copper_ug_per_l, dat_fert$mean_value_prop, xlab="Copper (µg/L)", ylab="", ylim=c(0, 1), axes=FALSE)
 axis(1)
 axis(2, las=2)
-lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
-polygon(c(ss, rev(ss)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit(newdat$success-2*sqrt(pvar1)))), col=rgb(0,0,0,0.2), border=NA)
+
+ssr <- (ss * (max(dat_fert$copper_ug_per_l) - min(dat_fert$copper_ug_per_l))) + min(dat_fert$copper_ug_per_l)
+
+lines(ssr, inv.logit(newdat$success), lwd=1, lty=1) # inf
+polygon(c(ssr, rev(ssr)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit(newdat$success-2*sqrt(pvar1)))), col=rgb(0,0,0,0.2), border=NA)
 mtext("A", side=3, line=0, adj=0, cex=1.2)
 
 # SEDIMENT
@@ -264,11 +267,14 @@ newdat$success <- mm %*% fixef(mod_fert_full)
 pvar1 <- diag(mm %*% tcrossprod(vcov(mod_fert_full),mm))
 tvar1 <- pvar1 + VarCorr(mod_fert_full)$experiment[1] + VarCorr(mod_fert_full)$rep[1]  
 
-plot(dat_fert$rs_sediment_mg_per_l, dat_fert$mean_value_prop, xlab="Sediment (mg/L)", ylab="", ylim=c(0, 1), axes=FALSE)
+plot(dat_fert$sediment_mg_per_l, dat_fert$mean_value_prop, xlab="Sediment (mg/L)", ylab="", ylim=c(0, 1), axes=FALSE)
 axis(1)
 axis(2, las=2)
-lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
-polygon(c(ss, rev(ss)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit(newdat$success-2*sqrt(pvar1)))), col=rgb(0,0,0,0.2), border=NA)
+
+ssr <- (ss * (max(dat_fert$sediment_mg_per_l) - min(dat_fert$sediment_mg_per_l))) + min(dat_fert$sediment_mg_per_l)
+
+lines(ssr, inv.logit(newdat$success), lwd=1, lty=1) # inf
+polygon(c(ssr, rev(ssr)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit(newdat$success-2*sqrt(pvar1)))), col=rgb(0,0,0,0.2), border=NA)
 mtext("B", side=3, line=0, adj=0, cex=1.2)
 
 # AMMONIUM
@@ -278,11 +284,14 @@ newdat$success <- mm %*% fixef(mod_fert_full)
 pvar1 <- diag(mm %*% tcrossprod(vcov(mod_fert_full),mm))
 tvar1 <- pvar1 + VarCorr(mod_fert_full)$experiment[1] + VarCorr(mod_fert_full)$rep[1]  
 
-plot(dat_fert$rs_ammonium_microM, dat_fert$mean_value_prop, xlab="Ammonium (µM)", ylab="", ylim=c(0, 1), axes=FALSE)
+plot(dat_fert$ammonium_microM, dat_fert$mean_value_prop, xlab="Ammonium (µM)", ylab="", ylim=c(0, 1), axes=FALSE)
 axis(1)
 axis(2, las=2)
-lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
-polygon(c(ss, rev(ss)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit(newdat$success-2*sqrt(pvar1)))), col=rgb(0,0,0,0.2), border=NA)
+
+ssr <- (ss * (max(dat_fert$ammonium_microM) - min(dat_fert$ammonium_microM))) + min(dat_fert$ammonium_microM)
+
+lines(ssr, inv.logit(newdat$success), lwd=1, lty=1) # inf
+polygon(c(ssr, rev(ssr)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit(newdat$success-2*sqrt(pvar1)))), col=rgb(0,0,0,0.2), border=NA)
 mtext("C", side=3, line=0, adj=0, cex=1.2)
 
 # PHOSPHOROUS
@@ -292,11 +301,14 @@ newdat$success <- mm %*% fixef(mod_fert_full)
 pvar1 <- diag(mm %*% tcrossprod(vcov(mod_fert_full),mm))
 tvar1 <- pvar1 + VarCorr(mod_fert_full)$experiment[1] + VarCorr(mod_fert_full)$rep[1] 
 
-plot(dat_fert$rs_phosphorous_microM, dat_fert$mean_value_prop, xlab="Phosphorous (µM)", ylab="", ylim=c(0, 1), axes=FALSE)
+plot(dat_fert$phosphorous_microM, dat_fert$mean_value_prop, xlab="Phosphorous (µM)", ylab="", ylim=c(0, 1), axes=FALSE)
 axis(1)
 axis(2, las=2)
-lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
-polygon(c(ss, rev(ss)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit(newdat$success-2*sqrt(pvar1)))), col=rgb(0,0,0,0.2), border=NA)
+
+ssr <- (ss * (max(dat_fert$phosphorous_microM) - min(dat_fert$phosphorous_microM))) + min(dat_fert$phosphorous_microM)
+
+lines(ssr, inv.logit(newdat$success), lwd=1, lty=1) # inf
+polygon(c(ssr, rev(ssr)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit(newdat$success-2*sqrt(pvar1)))), col=rgb(0,0,0,0.2), border=NA)
 mtext("D", side=3, line=0, adj=0, cex=1.2)
 
 # SALINITY
@@ -307,11 +319,14 @@ newdat$success <- mm %*% fixef(mod_fert_full)
 pvar1 <- diag(mm %*% tcrossprod(vcov(mod_fert_full),mm))
 tvar1 <- pvar1 + VarCorr(mod_fert_full)$experiment[1] + VarCorr(mod_fert_full)$rep[1] 
 
-plot(dat_fert$rs_salinity_psu, dat_fert$mean_value_prop, xlab="Salinity (psu)", ylab="", ylim=c(0, 1), axes=FALSE)
+plot(dat_fert$salinity_psu, dat_fert$mean_value_prop, xlab="Salinity (psu)", ylab="", ylim=c(0, 1), axes=FALSE)
 axis(1)
 axis(2, las=2)
-lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
-polygon(c(ss, rev(ss)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit(newdat$success-2*sqrt(pvar1)))), col=rgb(0,0,0,0.2), border=NA)
+
+ssr <- (ss * (max(dat_fert$salinity_psu) - min(dat_fert$salinity_psu))) + min(dat_fert$salinity_psu)
+
+lines(ssr, inv.logit(newdat$success), lwd=1, lty=1) # inf
+polygon(c(ssr, rev(ssr)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit(newdat$success-2*sqrt(pvar1)))), col=rgb(0,0,0,0.2), border=NA)
 mtext("E", side=3, line=0, adj=0, cex=1.2)
 
 
@@ -387,7 +402,7 @@ dat_surv$rs_salinity_psu[dat_surv$salinity_psu==34][1]
 
 ##PLOTS FOR SURVIVAL##
 
-pdf("figures/figure_2.pdf", 5.5, 8)
+pdf("figures/figure_2.pdf", 3.75, 8)
 
 par(mfrow=c(3,1), oma=c(0,2,0,0), mar=c(5, 4, 2, 7))
 
@@ -395,30 +410,38 @@ ss <- seq(0, 1, 0.01)
 
 # COPPER
 newdat <- expand.grid(rs_copper_ug_per_l = ss, rs_lead_ug_per_l=0, rs_salinity_psu = 0.8478261, success=0, failure=0)
+newdat$rs_salinity_psu_sq = newdat$rs_salinity_psu^2
 mm <- model.matrix(terms(mod_surv_full), newdat)
 newdat$success <- mm %*% fixef(mod_surv_full)
 pvar1 <- diag(mm %*% tcrossprod(vcov(mod_surv_full),mm))
 tvar1 <- pvar1 + VarCorr(mod_surv_full)$experiment[1] + VarCorr(mod_surv_full)$rep[1]  
 
-plot(dat_surv$rs_copper_ug_per_l, dat_surv$mean_value_prop, xlab="Copper (µg/L)", ylab="", ylim=c(0, 1),  axes=FALSE)
+plot(dat_surv$copper_ug_per_l, dat_surv$mean_value_prop, xlab="Copper (µg/L)", ylab="", ylim=c(0, 1),  axes=FALSE)
 axis(1)
 axis(2)
-lines(ss, inv.logit(newdat$success), lwd=1, lty=1)
-polygon(c(ss, rev(ss)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit(newdat$success-2*sqrt(pvar1)))), col=rgb(0,0,0,0.2), border=NA)
+
+ssr <- (ss * (max(dat_surv$copper_ug_per_l) - min(dat_surv$copper_ug_per_l))) + min(dat_surv$copper_ug_per_l)
+
+lines(ssr, inv.logit(newdat$success), lwd=1, lty=1)
+polygon(c(ssr, rev(ssr)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit(newdat$success-2*sqrt(pvar1)))), col=rgb(0,0,0,0.2), border=NA)
 mtext("A", side=3, line=0, adj=0, cex=1.2)
 
 # LEAD
 newdat <- expand.grid(rs_copper_ug_per_l=0, rs_lead_ug_per_l = ss, rs_salinity_psu = 0.8478261, success=0, failure=0)
+newdat$rs_salinity_psu_sq = newdat$rs_salinity_psu^2
 mm <- model.matrix(terms(mod_surv_full), newdat)
 newdat$success <- mm %*% fixef(mod_surv_full)
 pvar1 <- diag(mm %*% tcrossprod(vcov(mod_surv_full),mm))
 tvar1 <- pvar1 + VarCorr(mod_surv_full)$experiment[1] + VarCorr(mod_surv_full)$rep[1]  
 
-plot(dat_surv$rs_copper_ug_per_l, dat_surv$mean_value_prop, xlab="Lead (µg/L)", ylab="", ylim=c(0, 1), axes=FALSE)
+plot(dat_surv$lead_ug_per_l, dat_surv$mean_value_prop, xlab="Lead (µg/L)", ylab="", ylim=c(0, 1), axes=FALSE)
 axis(1)
 axis(2)
-lines(ss, inv.logit(newdat$success), lwd=1, lty=1) # inf
-polygon(c(ss, rev(ss)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit(newdat$success-2*sqrt(pvar1)))), col=rgb(0,0,0,0.2), border=NA)
+
+ssr <- (ss * (max(dat_surv$lead_ug_per_l) - min(dat_surv$lead_ug_per_l))) + min(dat_surv$lead_ug_per_l)
+
+lines(ssr, inv.logit(newdat$success), lwd=1, lty=1) # inf
+polygon(c(ssr, rev(ssr)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit(newdat$success-2*sqrt(pvar1)))), col=rgb(0,0,0,0.2), border=NA)
 mtext("B", side=3, line=0, adj=0, cex=1.2)
 
 #SALINITY
@@ -429,11 +452,14 @@ newdat$success <- mm %*% fixef(mod_surv_full)
 pvar1 <- diag(mm %*% tcrossprod(vcov(mod_surv_full),mm))
 tvar1 <- pvar1 + VarCorr(mod_surv_full)$experiment[1] + VarCorr(mod_surv_full)$rep[1] 
 
-plot(dat_surv$rs_salinity_psu, dat_surv$mean_value_prop, xlab="Salinity (psu)", ylab="", ylim=c(0, 1), axes=FALSE)
+plot(dat_surv$salinity_psu, dat_surv$mean_value_prop, xlab="Salinity (psu)", ylab="", ylim=c(0, 1), axes=FALSE)
 axis(1)
 axis(2)
-lines(ss, inv.logit(newdat$success), lwd=1, lty=1) 
-polygon(c(ss, rev(ss)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit(newdat$success-2*sqrt(pvar1)))), col=rgb(0,0,0,0.2), border=NA)
+
+ssr <- (ss * (max(dat_surv$salinity_psu) - min(dat_surv$salinity_psu))) + min(dat_surv$salinity_psu)
+
+lines(ssr, inv.logit(newdat$success), lwd=1, lty=1) 
+polygon(c(ssr, rev(ssr)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit(newdat$success-2*sqrt(pvar1)))), col=rgb(0,0,0,0.2), border=NA)
 mtext("C", side=3, line=0, adj=0, cex=1.2)
 
 mtext("Proportion survived", 2, line=0, outer=TRUE)
