@@ -102,8 +102,6 @@ mtext("Proportion fertilised", 2, line=0, outer=TRUE)
 
 dev.off()
 
-
-
 #########################
 ##SURVIVAL PRE-ANALYSIS##
 #########################
@@ -254,7 +252,7 @@ plot(dat_fert$copper_ug_per_l, dat_fert$mean_value_prop, xlab="Copper (µg/L)", 
 axis(1)
 axis(2, las=2)
 
-ssr <- (ss * (max(dat_fert$copper_ug_per_l) - min(dat_fert$copper_ug_per_l))) + min(dat_fert$copper_ug_per_l)
+ssr <- scaleback(ss, dat_fert$copper_ug_per_l)
 
 lines(ssr, inv.logit(newdat$success), lwd=1, lty=1) # inf
 polygon(c(ssr, rev(ssr)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit(newdat$success-2*sqrt(pvar1)))), col=rgb(0,0,0,0.2), border=NA)
@@ -271,7 +269,7 @@ plot(dat_fert$sediment_mg_per_l, dat_fert$mean_value_prop, xlab="Sediment (mg/L)
 axis(1)
 axis(2, las=2)
 
-ssr <- (ss * (max(dat_fert$sediment_mg_per_l) - min(dat_fert$sediment_mg_per_l))) + min(dat_fert$sediment_mg_per_l)
+ssr <- scaleback(ss, dat_fert$sediment_mg_per_l)
 
 lines(ssr, inv.logit(newdat$success), lwd=1, lty=1) # inf
 polygon(c(ssr, rev(ssr)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit(newdat$success-2*sqrt(pvar1)))), col=rgb(0,0,0,0.2), border=NA)
@@ -288,7 +286,7 @@ plot(dat_fert$ammonium_microM, dat_fert$mean_value_prop, xlab="Ammonium (µM)", 
 axis(1)
 axis(2, las=2)
 
-ssr <- (ss * (max(dat_fert$ammonium_microM) - min(dat_fert$ammonium_microM))) + min(dat_fert$ammonium_microM)
+ssr <- scaleback(ss, dat_fert$ammonium_microM)
 
 lines(ssr, inv.logit(newdat$success), lwd=1, lty=1) # inf
 polygon(c(ssr, rev(ssr)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit(newdat$success-2*sqrt(pvar1)))), col=rgb(0,0,0,0.2), border=NA)
@@ -305,7 +303,7 @@ plot(dat_fert$phosphorous_microM, dat_fert$mean_value_prop, xlab="Phosphorous (�
 axis(1)
 axis(2, las=2)
 
-ssr <- (ss * (max(dat_fert$phosphorous_microM) - min(dat_fert$phosphorous_microM))) + min(dat_fert$phosphorous_microM)
+ssr <- scaleback(ss, dat_fert$phosphorous_microM)
 
 lines(ssr, inv.logit(newdat$success), lwd=1, lty=1) # inf
 polygon(c(ssr, rev(ssr)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit(newdat$success-2*sqrt(pvar1)))), col=rgb(0,0,0,0.2), border=NA)
@@ -323,7 +321,7 @@ plot(dat_fert$salinity_psu, dat_fert$mean_value_prop, xlab="Salinity (psu)", yla
 axis(1)
 axis(2, las=2)
 
-ssr <- (ss * (max(dat_fert$salinity_psu) - min(dat_fert$salinity_psu))) + min(dat_fert$salinity_psu)
+ssr <- scaleback(ss, dat_fert$salinity_psu)
 
 lines(ssr, inv.logit(newdat$success), lwd=1, lty=1) # inf
 polygon(c(ssr, rev(ssr)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit(newdat$success-2*sqrt(pvar1)))), col=rgb(0,0,0,0.2), border=NA)
@@ -420,7 +418,7 @@ plot(dat_surv$copper_ug_per_l, dat_surv$mean_value_prop, xlab="Copper (µg/L)", 
 axis(1)
 axis(2)
 
-ssr <- (ss * (max(dat_surv$copper_ug_per_l) - min(dat_surv$copper_ug_per_l))) + min(dat_surv$copper_ug_per_l)
+ssr <- scaleback(ss, dat_surv$copper_ug_per_l)
 
 lines(ssr, inv.logit(newdat$success), lwd=1, lty=1)
 polygon(c(ssr, rev(ssr)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit(newdat$success-2*sqrt(pvar1)))), col=rgb(0,0,0,0.2), border=NA)
@@ -438,7 +436,7 @@ plot(dat_surv$lead_ug_per_l, dat_surv$mean_value_prop, xlab="Lead (µg/L)", ylab
 axis(1)
 axis(2)
 
-ssr <- (ss * (max(dat_surv$lead_ug_per_l) - min(dat_surv$lead_ug_per_l))) + min(dat_surv$lead_ug_per_l)
+ssr <- scaleback(ss, dat_surv$lead_ug_per_l)
 
 lines(ssr, inv.logit(newdat$success), lwd=1, lty=1) # inf
 polygon(c(ssr, rev(ssr)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit(newdat$success-2*sqrt(pvar1)))), col=rgb(0,0,0,0.2), border=NA)
@@ -456,7 +454,7 @@ plot(dat_surv$salinity_psu, dat_surv$mean_value_prop, xlab="Salinity (psu)", yla
 axis(1)
 axis(2)
 
-ssr <- (ss * (max(dat_surv$salinity_psu) - min(dat_surv$salinity_psu))) + min(dat_surv$salinity_psu)
+ssr <- scaleback(ss, dat_surv$salinity_psu)
 
 lines(ssr, inv.logit(newdat$success), lwd=1, lty=1) 
 polygon(c(ssr, rev(ssr)), c(inv.logit(newdat$success+2*sqrt(pvar1)), rev(inv.logit(newdat$success-2*sqrt(pvar1)))), col=rgb(0,0,0,0.2), border=NA)
@@ -489,7 +487,7 @@ hier.part(dat_surv$mean_value_prop, factors, family = "binomial", gof = "logLik"
 
 water <- read.csv("data/water_samples.csv", as.is=TRUE)
 
-# Water data preperation, deadling with non-numeric characters like "<"
+# Water data preparation, dealing with non-numeric characters like "<"
 water[water == "<1"] <- "0.5"
 water[water == "<0.05"] <- "0.025"
 water[water == "<0.1"] <- "0.05"
@@ -507,22 +505,14 @@ water <- water[1:3,]
 pdf("figures/figure_3.pdf", 5.5, 8)
 par(mfrow=c(3,1), oma=c(0,2,0,0), mar=c(5, 4, 4, 2))
 
-mod_sediment_mg_per_l <- lm(rs_sediment_mg_per_l ~ sediment_mg_per_l, dat_fert)
-mod_copper_ug_per_l <- lm(rs_copper_ug_per_l ~ copper_ug_per_l, dat_fert)
-mod_ammonium_microM <- lm(rs_ammonium_microM ~ ammonium_microM, dat_fert)
-mod_phosphorous_microM <- lm(rs_phosphorous_microM ~ phosphorous_microM, dat_fert)
-mod_salinity_psu <- lm(rs_salinity_psu ~ salinity_psu, dat_fert)
-
-
 water_fert <- data.frame(
-  rs_sediment_mg_per_l=predict(mod_sediment_mg_per_l, list(sediment_mg_per_l=water$suspended_solids_mg.l)), 
-  rs_copper_ug_per_l=predict(mod_copper_ug_per_l, list(copper_ug_per_l=water$copper_ug.l)),
-  rs_ammonium_microM=predict(mod_ammonium_microM, list(ammonium_microM=water$ammonia_mg.l)),
-  rs_phosphorous_microM=predict(mod_phosphorous_microM, list(phosphorous_microM=water$phosphorus_mg.l)), 
-  rs_salinity_psu=predict(mod_salinity_psu, list(salinity_psu=water$salinity_g.l)), 
+  rs_sediment_mg_per_l=rescale(water$suspended_solids_mg.l, dat_fert$sediment_mg_per_l), 
+  rs_copper_ug_per_l=rescale(water$copper_ug.l, dat_fert$copper_ug_per_l),
+  rs_ammonium_microM=rescale(water$ammonia_mg.l, dat_fert$ammonium_microM),
+  rs_phosphorous_microM=rescale(water$phosphorus_mg.l, dat_fert$phosphorous_microM), 
+  rs_salinity_psu=rescale(water$salinity_g.l, dat_fert$salinity_psu), 
   success=0, failure=0
 )
-
 water_fert$rs_salinity_psu_sq <- water_fert$rs_salinity_psu^2
 
 mm_fert <- model.matrix(terms(mod_fert_full), water_fert)
@@ -538,13 +528,10 @@ mtext("A", side=3, line=0, adj=0, cex=1.2)
 
 ##Survival Model##
 
-mod_copper_ug_per_l <- lm(rs_copper_ug_per_l ~ copper_ug_per_l, dat_surv)
-mod_lead_ug_per_l <- lm(rs_lead_ug_per_l ~ lead_ug_per_l, dat_surv)
-
 water_surv <- data.frame(
-  rs_copper_ug_per_l=predict(mod_copper_ug_per_l, list(copper_ug_per_l=water$copper_ug.l)),
-  rs_lead_ug_per_l=predict(mod_lead_ug_per_l, list(lead_ug_per_l=water$lead_ug.l)),
-  rs_salinity_psu=predict(mod_salinity_psu, list(salinity_psu=water$salinity_g.l)), 
+  rs_copper_ug_per_l=rescale(water$copper_ug.l, dat_surv$copper_ug_per_l),
+  rs_lead_ug_per_l=rescale(water$lead_ug.l, dat_surv$lead_ug_per_l),
+  rs_salinity_psu=rescale(water$salinity_g.l, dat_surv$salinity_psu), 
   success=0, failure=0
 )
 water_surv$rs_salinity_psu_sq <- water_surv$rs_salinity_psu^2
@@ -582,7 +569,7 @@ for (cc in 1:3) {
   pvar1_surv <- diag(mm_surv %*% tcrossprod(vcov(mod_surv_full), mm_surv))
   
   
-  vars <- sort(inv.logit(rnorm(10000, temp_fert$success, pvar1_fert)) * inv.logit(rnorm(10000, temp_surv$success, pvar1_surv)))
+  vars <- sort(inv.logit(rnorm(10000, temp_fert$success, sqrt(pvar1_fert))) * inv.logit(rnorm(10000, temp_surv$success, sqrt(pvar1_surv))))
   
   combined_store <- rbind(combined_store, c(cc, vars[5000], vars[250], vars[9750]))
   
