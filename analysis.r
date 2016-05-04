@@ -502,8 +502,8 @@ water <- water[1:3,]
 
 ##Fertilisation Model##
 
-pdf("figures/figure_3.pdf", 5.5, 8)
-par(mfrow=c(3,1), oma=c(0,2,0,0), mar=c(5, 4, 4, 2))
+# pdf("figures/figure_3.pdf", 5.5, 8)
+# par(mfrow=c(3,1), oma=c(0,2,0,0), mar=c(5, 4, 4, 2))
 
 water_fert <- data.frame(
   rs_sediment_mg_per_l=rescale(water$suspended_solids_mg.l, dat_fert$sediment_mg_per_l), 
@@ -520,11 +520,17 @@ mm_fert <- model.matrix(terms(mod_fert_full), water_fert)
 water_fert$success <- mm_fert %*% fixef(mod_fert_full)
 pvar1 <- diag(mm_fert %*% tcrossprod(vcov(mod_fert_full), mm_fert))
 tvar1 <- pvar1 + VarCorr(mod_fert_full)$experiment[1] + VarCorr(mod_fert_full)$rep[1]  
-#bar plot
-bp <- barplot(t(inv.logit(water_fert$success)), xlab="Location", ylab="Proportion of Larvae Fertilised", ylim=c(0, 1), names.arg=water$sample)
-#error bars
-arrows(bp, inv.logit(water_fert$success-2*sqrt(pvar1)), bp, inv.logit(water_fert$success+2*sqrt(pvar1)), code=3, angle=90)
-mtext("A", side=3, line=0, adj=0, cex=1.2)
+
+
+
+store <- data.frame(loc=c("Chowder Bay", "Mona Vale", "Lizard Island"), stage="fert", m=inv.logit(water_fert$success), up=inv.logit(water_fert$success+1.96*sqrt(pvar1)), lo=inv.logit(water_fert$success-1.96*sqrt(pvar1)))
+
+
+# #bar plot
+# bp <- barplot(t(inv.logit(water_fert$success)), xlab="Location", ylab="Proportion of Larvae Fertilised", ylim=c(0, 1), names.arg=water$sample)
+# #error bars
+# arrows(bp, inv.logit(water_fert$success-2*sqrt(pvar1)), bp, inv.logit(water_fert$success+2*sqrt(pvar1)), code=3, angle=90)
+# mtext("A", side=3, line=0, adj=0, cex=1.2)
 
 ##Survival Model##
 
@@ -541,11 +547,15 @@ mm_surv <- model.matrix(terms(mod_surv_full), water_surv)
 water_surv$success <- mm_surv %*% fixef(mod_surv_full)
 pvar1 <- diag(mm_surv %*% tcrossprod(vcov(mod_surv_full), mm_surv))
 tvar1 <- pvar1 + VarCorr(mod_surv_full)$experiment[1] + VarCorr(mod_surv_full)$rep[1]  
-#bar plot
-bp <- barplot(t(inv.logit(water_surv$success)), xlab="Location", ylab="Proportion of Larvae Survived", ylim=c(0, 1), names.arg=water$sample)
-#error bars
-arrows(bp, inv.logit(water_surv$success-2*sqrt(pvar1)), bp, inv.logit(water_surv$success+2*sqrt(pvar1)), code=3, angle=90)
-mtext("B", side=3, line=0, adj=0, cex=1.2)
+
+store <- rbind(store, data.frame(loc=c("Chowder Bay", "Mona Vale", "Lizard Island"), stage="surv", m=inv.logit(water_surv$success), up=inv.logit(water_surv$success+1.96*sqrt(pvar1)), lo=inv.logit(water_surv$success-1.96*sqrt(pvar1))))
+
+
+# #bar plot
+# bp <- barplot(t(inv.logit(water_surv$success)), xlab="Location", ylab="Proportion of Larvae Survived", ylim=c(0, 1), names.arg=water$sample)
+# #error bars
+# arrows(bp, inv.logit(water_surv$success-2*sqrt(pvar1)), bp, inv.logit(water_surv$success+2*sqrt(pvar1)), code=3, angle=90)
+# mtext("B", side=3, line=0, adj=0, cex=1.2)
 
 
 ####################
@@ -575,13 +585,17 @@ for (cc in 1:3) {
   
 }
 
-bp <- barplot(combined_store[,2], xlab="Location", ylab="Proportion of Succesful Larvae", ylim=c(0, 1), names.arg=water$sample)
+store <- rbind(store, data.frame(loc=c("Chowder Bay", "Mona Vale", "Lizard Island"), stage="comb", m=combined_store[,2], up=combined_store[,4], lo=combined_store[,3]))
 
-#error bars
-arrows(bp, combined_store[,3], bp, combined_store[,4], code=3, angle=90)
-mtext("C", side=3, line=0, adj=0, cex=1.2)
+store <- store[c(3, 6, 9, 2, 5, 8, 1, 4, 7),]
 
-dev.off()
+# bp <- barplot(combined_store[,2], xlab="Location", ylab="Proportion of Succesful Larvae", ylim=c(0, 1), names.arg=water$sample)
+
+# #error bars
+# arrows(bp, combined_store[,3], bp, combined_store[,4], code=3, angle=90)
+# mtext("C", side=3, line=0, adj=0, cex=1.2)
+
+# dev.off()
 
 ##################
 ##Combined Graph##
@@ -589,6 +603,10 @@ dev.off()
 #Ordering is fertilised, survivorship and combined
 fig4 = matrix(c(0.2259616, 0.5162162, 0.1146038, 0.6026941, 0.5921328, 0.3553115, 0.7130179, 0.6159538, 0.4390246), nrow=3, ncol=3)
 
-bp_water <- barplot(fig4, beside=TRUE, xlab="Location", ylab="Proportion of Larvae", ylim=c(0, 1), names.arg=water$sample)
+bp_water <- barplot(matrix(store$m, 3, 3), beside=TRUE, xlab="Location", ylab="Proportion of Larvae", ylim=c(0, 1), col=c("#999999", "#555555", "#222222"))
+legend("topright", c("Fertilisation", "Larval survivorship", "Combined"), fill=c("#999999", "#555555", "#222222"))
+axis(1, at=bp_water[2,], labels=c("Lizard Island", "Mona Vale", "Chowder Bay"))
 
-bp_water
+arrows(bp_water, matrix(store$up, 3, 3), bp_water, matrix(store$lo, 3, 3), code=3, angle=90, length=0.1)
+
+
