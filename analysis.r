@@ -586,6 +586,7 @@ dev.off()
 ##################
 ##Combined Graph##
 ##################
+#Ordering is fertilised, survivorship and combined
 fig4 = matrix(c(0.2259616, 0.5162162, 0.1146038, 0.6026941, 0.5921328, 0.3553115, 0.7130179, 0.6159538, 0.4390246), nrow=3, ncol=3)
 
 bp_water <- barplot(fig4, beside=TRUE, xlab="Location", ylab="Proportion of Larvae", ylim=c(0, 1), names.arg=water$sample)
