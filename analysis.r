@@ -563,15 +563,15 @@ for (cc in 1:3) {
 
 #Graph
 
-pdf("figures/figure_4.pdf", 5.5, 8)
-par(mfrow=c(3,1), oma=c(0,2,0,0), mar=c(5, 4, 4, 2))
+pdf("figures/figure_5.pdf", 5.5, 8)
+par(mfrow=c(3,1), oma=c(2,2,4,2), mar=c(5, 4, 4, 2))
 
 store <- rbind(store, data.frame(loc=c("Chowder Bay", "Mona Vale", "Lizard Island"), stage="comb", m=combined_store[,2], up=combined_store[,4], lo=combined_store[,3]))
 
 store <- store[c(3, 6, 9, 2, 5, 8, 1, 4, 7),]
 
 bp_water <- barplot(matrix(store$m, 3, 3), beside=TRUE, xlab="Location", ylab="Proportion of Larvae", ylim=c(0, 1), col=c("#333333", "#666666","#999999" ))
-legend("topright", c("Fertilisation", "Larval survivorship", "Combined"), fill=c("#333333", "#666666", "#999999"))
+legend("toptopright", c("Fertilisation", "Larval survivorship", "Combined"), fill=c("#333333", "#666666", "#999999"))
 axis(1, at=bp_water[2,], labels=c("Lizard Island", "Mona Vale", "Chowder Bay"))
 
 arrows(bp_water, matrix(store$up, 3, 3), bp_water, matrix(store$lo, 3, 3), code=3, angle=90, length=0.1)
