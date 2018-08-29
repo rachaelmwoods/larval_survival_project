@@ -165,6 +165,7 @@ drop1(mod_surv, test="Chisq")
 dat_surv$tempertaure_degrees_celcius_sq <- dat_surv$tempertaure_degrees_celcius^2
 mod_surv <- glm(cbind(success, failure) ~ tempertaure_degrees_celcius + tempertaure_degrees_celcius_sq, family=binomial, data=dat_surv)
 summary(mod_surv)
+
 plot(mean_value_prop ~ tempertaure_degrees_celcius,  col = "dodgerblue", xlab = "Temperature (deg C)", ylab = "",  pch=16, las=1, data=dat_surv)
 ss <- sort(dat_surv$tempertaure_degrees_celcius)
 pred_surv <- predict(mod_surv, list(tempertaure_degrees_celcius = ss, tempertaure_degrees_celcius_sq = ss^2), type="response", se.fit = TRUE)
@@ -564,17 +565,19 @@ for (cc in 1:3) {
 #Graph
 
 pdf("figures/figure_5.pdf", 5.5, 8)
-par(mfrow=c(3,1), oma=c(2,2,4,2), mar=c(5, 4, 4, 2))
+par(mfrow=c(3,1), oma=c(2,2,4,2), mar=c(5, 4, 6, 2))
 
 store <- rbind(store, data.frame(loc=c("Chowder Bay", "Mona Vale", "Lizard Island"), stage="comb", m=combined_store[,2], up=combined_store[,4], lo=combined_store[,3]))
 
 store <- store[c(3, 6, 9, 2, 5, 8, 1, 4, 7),]
 
-bp_water <- barplot(matrix(store$m, 3, 3), beside=TRUE, xlab="Location", ylab="Proportion of Larvae", ylim=c(0, 1), col=c("#333333", "#666666","#999999" ))
-legend("toptopright", c("Fertilisation", "Larval survivorship", "Combined"), fill=c("#333333", "#666666", "#999999"))
+bp_water <- barplot(matrix(store$m, 3, 3), beside=TRUE, xlab="Location", ylab="Proportion Success", ylim=c(0, 1), col=c("#333333", "#666666","#999999" ))
+legend(x=7, y=1, bty="n", c("Fertilisation", "Larval survivorship", "Combined"), fill=c("#333333", "#666666", "#999999"))
 axis(1, at=bp_water[2,], labels=c("Lizard Island", "Mona Vale", "Chowder Bay"))
 
 arrows(bp_water, matrix(store$up, 3, 3), bp_water, matrix(store$lo, 3, 3), code=3, angle=90, length=0.1)
 
 
 dev.off()
+
+
